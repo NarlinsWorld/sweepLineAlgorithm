@@ -23,23 +23,23 @@ document.getElementById("clearr").addEventListener("click", () => {
 });
 
 //event for the slider
-document.getElementById("sweep").addEventListener("input", () => {
-  sweepY = parseInt(document.getElementById("sweep").value);
-  document.getElementById("swee").value = sweepY;
-  if (!animate) {
-    displaySweepY = sweepY;
-  }
-  redraw();
-});
+// document.getElementById("sweep").addEventListener("input", () => {
+//   sweepY = parseInt(document.getElementById("sweep").value);
+//   document.getElementById("swee").value = sweepY;
+//   if (!animate) {
+//     displaySweepY = sweepY;
+//   }
+//   redraw();
+// });
 
-//event for the input box
-document.getElementById("swee").addEventListener("change", () => {
-  sweepY = parseInt(document.getElementById("swee").value);
-  if (!animate) {
-    displaySweepY = sweepY;
-  }
-  redraw();
-});
+//event for the sweepY value input box
+// document.getElementById("swee").addEventListener("change", () => {
+//   sweepY = parseInt(document.getElementById("swee").value);
+//   if (!animate) {
+//     displaySweepY = sweepY;
+//   }
+//   redraw();
+// });
 
 
 function showEvents() {
@@ -55,7 +55,7 @@ function showEvents() {
 }
 
 document.getElementById("intersectionList").addEventListener("click", () => {
-  appendHTML("Div2", '--------------------');
+  appendHTML("Div2", '----- uniqueIntersections.values -----');
   for (let item of uniqueIntersections.values()) {
     let segmentNames = item.segments
       .map(s => `S${s.id}`)
@@ -186,12 +186,19 @@ document.getElementById("listSegs").addEventListener("click", () => {
   listSegs(segments);
 });
 
+//input box for the animation event Pause Time.
 document.getElementById("pauseTime").addEventListener("change", () => {
   eventPause = Number(document.getElementById("pauseTime").value);
 });
 
+//input box for the animation SweepSpeed
 document.getElementById("sweepSpeed").addEventListener("change", () => {
   sweepSpeed = Number(document.getElementById("sweepSpeed").value);
+})
+
+//input box for the maximum length of a segment
+document.getElementById("maxLen").addEventListener("change", () => {
+  maxLen = Number(document.getElementById("maxLen").value);
 })
 
 function randomIntFromInterval(min, max) {
@@ -236,12 +243,25 @@ function det3x3(a, b, c, d, e, f, g, h, i) {
   return a * (e * i - f * h) - b * (d * i - f * g) + c * (d * h - e * g);
 }
 
+// const gcd = (a, b) => {
+//   a = Math.abs(a);
+//   b = Math.abs(b);
+//   if (a == 0) { return b }
+//   return gcd(b % a, a);
+// }
+
 const gcd = (a, b) => {
-  a = Math.abs(a);
-  b = Math.abs(b);
-  if (a == 0) { return b }
-  return gcd(b % a, a);
-}
+    a = Math.abs(a);
+    b = Math.abs(b);
+
+    while (a !== 0) {
+        let remainder = b % a;
+        b = a;
+        a = remainder;
+    }
+
+    return b;
+};
 
 
 

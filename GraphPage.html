@@ -22,15 +22,17 @@
 
 <body>
   <a href="index.html" class="button">Introduction</a><br>
-  
+
+  <!-- Next is the Progress Bar including some text -->
   <progress id="eventProgress" value="0" max="100"></progress>
   <span id="progressText">0%</span><br>
 
   <button id="clearr">TextClear</button>
 
-  <input type="range" min="-200" max="200" value="190" class="slider" id="sweep"> <!-- SLIDER-->
+  <!-- Several additions to main are needed to get this slider working -->
+  <!-- <input type="range" min="-200" max="200" value="190" class="slider" id="sweep"> SLIDER -->
 
-  Value: <input id="swee" value="190" size="5">
+  <!-- Value: <input id="swee" value="190" size="5"> -->
 
   <button id="listSegs">list<br>Segs</button>
   <button id="showSweepEvents" onclick="showEvents()">show Events</button>
@@ -49,15 +51,22 @@
   <button id="repeatSetUp" onclick="repeatableSetUp()">reStart</button>
   <button id="dataMode" style="background:green"
     onclick="this.style.background=this.style.background=='red'?'green':'red'">Random</button>
-  <label name="segNumber">Segment#</label>
-  <input id="segNumber" size="5" value="30"><br>
+  
+    <!-- Number of Segments to create -->
+  <label for="segNumber">Segment#</label>
+  <input id="segNumber" class="ch-width1" value="30">
+
+<!-- Maximum length of segments that are created. -->
+ <label for="maxLen">Seg Length</label>
+ <input id="maxLen" class="ch-width" value="300"><br> <!-- set in repeatable setup -->
+
   <button id="animateButton" class="animateOff">AnimateOFF</button>
-  A green TEST tries to make nearby points be a single point.&nbsp;
+  Green TEST combines nearby points. &nbsp;
   <output id="intersectionCount"></output><br>
-  <label name="pauseTime">Event Pause Time (ms)</label>
-  <input id="pauseTime" value="10" size="5">
-  <label name="sweepSpeed">SweepSpeed (ms)</label>
-  <input id="sweepSpeed" value="1" size="5">
+  <label for="pauseTime">Event Pause Time (ms)</label>
+  <input id="pauseTime" class="ch-width" value="10" >
+  <label for="sweepSpeed">SweepSpeed (ms)</label>
+  <input id="sweepSpeed" class="ch-width" value="1" >
   <output id="estimate"></output>
 
 

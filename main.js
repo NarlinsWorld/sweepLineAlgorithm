@@ -6,7 +6,8 @@ let estimated; //number of estimated intersections
 let segments = [];
 let scheduledIntersections = new Set();
 let sweepTree; // initialize varaible for Binary Search Tree
-let sweepY = parseInt(document.getElementById("sweep").value);
+// let sweepY = parseInt(document.getElementById("sweep").value);
+let sweepY = 200;
 let displaySweepY = sweepY;
 let animate = false; //who knows. maybe someday
 let events = []; // <= global
@@ -24,8 +25,8 @@ let sweepSpeed = Number(document.getElementById("sweepSpeed").value);
 //let sweepSpeed = 1;       // coordinate units per frame
 let animationTarget = null;
 let pauseUntil = 0;
-let minY = Infinity;
-let maxY = -Infinity;
+let minY = Infinity; //used to compute progress bar
+let maxY = -Infinity; //used to compute progress bar
 let stdIntersections = new Map;
 
 // Global, starts true, button starts green
@@ -70,7 +71,8 @@ function repeatableSetUp() {
     segments = [];
     scheduledIntersections = new Set();
     sweepTree = null; // initialize varaible for Binary Search Tree
-    sweepY = parseInt(document.getElementById("sweep").value);
+    // sweepY = parseInt(document.getElementById("sweep").value);
+    sweepY = 200;
     displaySweepY = sweepY;
     animate = false; //who knows. maybe someday
     events = []; // <= global
@@ -88,7 +90,7 @@ function repeatableSetUp() {
     document.getElementById('Div2').innerHTML = "";
 
     if (doRandom) {
-        createRandomSegments(segNumber);
+        createRandomSegments(segNumber, maxLen);
     } else {
         createSegmentsStatic(segmentsArray); //hand crafted testing segments
     }
@@ -100,7 +102,15 @@ function repeatableSetUp() {
 
     //use the standard method to find intersections
     //estimated = countIntersections(); //it counts only.
+    let beginStd = performance.now();
     findStandardIntersections()
+    // Include intersections at shared endpoints
+    for (const [key, segs] of shared) {
+        const [x, y] = key.split(",").map(Number);
+        recordStdIntersection(x, y, segs);
+    }
+    let endStd = performance.now();
+    console.log(`Time to get std intersections = ${endStd - beginStd}ms`);
     estimated = stdIntersections.size;
     //console.log(stdIntersections)
     document.getElementById("estimate").innerHTML = "Intersections Estimated = " + estimated;
@@ -293,11 +303,12 @@ function draw() {
             circle(intersection.x, intersection.y, 5);
             intersectionCnt += 1;
         } else {
-            circle(intersection.x, intersection.y, 1);
+            circle(intersection.x, intersection.y, 3);
             intersectionCnt += 1;
         }
-        document.getElementById("intersectionCount").innerHTML = "Intersections Detected = " + intersectionCnt;
+
     }
+    document.getElementById("intersectionCount").innerHTML = "Intersections Detected = " + intersectionCnt;
 
 
 
@@ -418,7 +429,7 @@ function createRandomSegments(n) {
 */ //end original createRandomSegments
 
 //modified to get short segments from maxLen
-function createRandomSegments(n, maxLen=400) {
+function createRandomSegments(n, maxLen = 400) {
     segments = [];
     let cnt = 0;
     const H = maxLen / 2;
@@ -430,9 +441,9 @@ function createRandomSegments(n, maxLen=400) {
         // Clip the sampling box to the domain, THEN sample uniformly inside it.
         // This keeps p2 uniform in the valid region — no pile-up at the walls.
         const xLo = Math.max(-180, x1 - H);
-        const xHi = Math.min( 180, x1 + H);
+        const xHi = Math.min(180, x1 + H);
         const yLo = Math.max(-180, y1 - H);
-        const yHi = Math.min( 180, y1 + H);
+        const yHi = Math.min(180, y1 + H);
 
         const x2 = randomIntFromInterval(xLo, xHi);
         const y2 = randomIntFromInterval(yLo, yHi);
@@ -444,7 +455,7 @@ function createRandomSegments(n, maxLen=400) {
 
         segments.push(
             new Segment(i,
-                new Point(cnt,     x1, y1),
+                new Point(cnt, x1, y1),
                 new Point(cnt + 1, x2, y2))
         );
         cnt += 2;
@@ -1146,11 +1157,12 @@ function runASAP() {
 }
 
 function runASAPChunk() {
-    let batchSize = 10;
+    let batchSize = 100000;
     let count = 0;
     let nextEvent;
 
     // Process a small batch of events.
+    let beginTime = performance.now();
     while (
         count < batchSize &&
         (nextEvent = events.find(e => !processedEvents.has(e)))
@@ -1159,7 +1171,8 @@ function runASAPChunk() {
         processEvent(nextEvent, false);
         count++;
     }
-
+    let endTime = performance.now();
+    console.log(`sweepLine process Time = ${endTime - beginTime}ms`)
     // Update the display.
     updateProgress();
     //redraw();

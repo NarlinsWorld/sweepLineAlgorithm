@@ -12,11 +12,19 @@ html {
   padding: 5px 10px;
   box-sizing: border-box;
   align-items: start;
-  justify-content: start;   /* keep grid hugged to the left, not stretched */
+  justify-content: start;
+  /* keep grid hugged to the left, not stretched */
 }
 
-.animateOn  { background-color: green; color: white; }
-.animateOff { background-color: red;   color: white; }
+.animateOn {
+  background-color: green;
+  color: white;
+}
+
+.animateOff {
+  background-color: red;
+  color: white;
+}
 
 .button {
   display: inline-block;
@@ -28,7 +36,29 @@ html {
   font-family: Arial, sans-serif;
   font-size: 16px;
 }
-.button:hover { background-color: #0056b3; }
+
+.button:hover {
+  background-color: #0056b3;
+}
+
+/* Set width using em units (relative to font size) */
+input.ch-width {
+  width: 5ch;
+  box-sizing: border-box;
+  padding: 2px;
+  font-family: inherit;
+  /* font-family: Fira Sans; */
+  /* makes 5ch predictable */
+}
+
+input.ch-width1 {
+  width: 9ch;
+  box-sizing: border-box;
+  padding: 2px;
+  font-family: inherit;
+  /* font-family: Fira Sans; */
+  /* makes 5ch predictable */
+}
 
 .p1 {
   padding: 5px;
@@ -37,8 +67,11 @@ html {
   margin: 0 auto;
   box-sizing: border-box;
 }
+
 @media (max-width: 960px) {
-  .p1 { width: 100%; }
+  .p1 {
+    width: 100%;
+  }
 }
 
 /* Canvas: upper-left, spans both content rows */
@@ -50,7 +83,8 @@ html {
   height: 400px;
   margin: 0;
   border: 3px solid green;
-  box-sizing: content-box;   /* outer = 406 x 406 */
+  box-sizing: content-box;
+  /* outer = 406 x 406 */
 }
 
 /* Div1 and Div2: to the right of canvas, expandable, left-aligned with each other */
@@ -76,10 +110,13 @@ html {
 
 /* Div3: starts at LEFT edge of page, below everything, full width to fit content */
 #Div3 {
-  grid-column: 1 / -1;   /* span both columns, starting at far left */
+  grid-column: 1 / -1;
+  /* span both columns, starting at far left */
   grid-row: 3;
-  width: max-content;    /* as wide as its content needs */
-  max-width: 100%;       /* but don't force horizontal scroll of the page */
+  width: max-content;
+  /* as wide as its content needs */
+  max-width: 100%;
+  /* but don't force horizontal scroll of the page */
   box-sizing: border-box;
   padding: 10px;
   border: 1px solid #888;

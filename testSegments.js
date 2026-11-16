@@ -20,13 +20,25 @@ segmentsArray = [
 
 //AI invented test       *********************************************************
 /*
-const segmentsArray = [
+segmentsArray = [
     [ 4,  2,  6, -2],  // S0
     [ 6,  2,  4, -2],  // S1
-    [-1,  2,  0,  0],  // S2
-    [ 0,  0,  1, -2]   // S3
+    [-1,  2,  0,  0],  // S2 
+    [ 0,  0,  1, -2]   // S3 
 ];
 */
+
+//Same as above, just enlarged to see it.
+/*
+const segmentsArray = [
+    [ -4,  18,  12, -14],  // S0
+    [ 9,  8,  4, -2],  // S1
+    [-10,  20,  0,  0],  // S2 
+    [ 0,  0,  10, -20]   // S3 
+];
+*/
+
+
 
 //This passes with the one line commented out
 // There are 11 intersetions and it found all 11
@@ -70,6 +82,7 @@ segmentsArray = [  //4 pts intersect, 11 intersections
     [-175,80,100,-30]
 ]
  */
+
 // 4 segments pass thru, 1 terminates a 1 originates.  Only 1 intersection
 /*
 segmentsArray = [
@@ -80,7 +93,7 @@ segmentsArray = [
     [25,0,50,-30],
     [10,140,25,0]
 ]
- */  
+  */
 
 //Except for S3, they all terminate or originate at (25,0).  S3 passes thru.
 /*
@@ -160,7 +173,8 @@ segmentsArray = [
     [-175,80,100,-30],       //S7
     [-5,175,40,40]           //S8
 ]
-    */
+*/
+
 //Example 9, A square with an X in the middle.
 // 5 intersections
 /*
@@ -182,7 +196,7 @@ segmentsArray = [
     [60, -80, 110, -188],
     [0, -20, 160, -180]
 ]
-    */
+  */  
 
 //Two Segments one intersects the other exactly on the segment.
 /*
@@ -190,7 +204,7 @@ segmentsArray = [
     [-100,160,60,0],
     [-100,40,40,20]
 ]
-    */
+  */ 
 
 //Three Segments intersecting, but one terminates
 /*
@@ -199,7 +213,7 @@ segmentsArray = [
     [-100,-40,40,20],  //S1  The terminating segment
     [80,60,-40,-60]   //S2
 ]
-    */
+ */   
 
 /*
     segmentsArray = [
@@ -207,7 +221,9 @@ segmentsArray = [
     [-100,40,180,0],  //S1
     [80,60,-40,-60]   //S2
 ]
+*/
 
+/*
    segmentsArray = [
     [-100,160,60,0],  //S0
     [-100,40,180,0],  //S1
@@ -221,16 +237,24 @@ segmentsArray = [
     [40, 40, 60, -20],
     [40, 40, -60, -40]
 ] 
-    */
+*/  
+
+//Two identical segments is NO INTERSECTION
+/*
+segmentsArray = [
+    [40, 40, 60, -20],
+    [40, 40, 60, -20]
+]
+*/
 
 //Three Segments Intersecting and two of them terminating
-/*
+
 segmentsArray = [
     [-100,160,60,0],  //S0
     [-100,40,40,20],  //S1
     [80,60,40,20]   //S2   The terminating segment
 ]
-*/
+
 
 
 //Two Segments terminating at the same point which is above them
@@ -556,7 +580,7 @@ segmentsArray = [
 */
 
 // 400 point set with some multi-intersections
-
+/*
 segmentsArray = [
 [-171, -62, 111, 41], //S0  282,103
 [32, 42, 72, 114], //S1  -40,-72
@@ -959,7 +983,7 @@ segmentsArray = [
 [120, -116, 124, -38],    //S398     42,87
 [-58, -154, 110, 36]   //S399     -180,-177
 ]
-
+*/
 
 //500FailingSegments
 /*
