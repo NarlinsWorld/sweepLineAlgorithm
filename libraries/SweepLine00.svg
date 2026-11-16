@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="145.09mm"
+   height="78.811996mm"
+   viewBox="0 0 145.09 78.811996"
+   version="1.1"
+   id="svg1"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1">
+    <marker
+       style="overflow:visible"
+       id="marker20"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       markerWidth="1.5"
+       markerHeight="1.5"
+       viewBox="0 0 1 1"
+       preserveAspectRatio="xMidYMid">
+      <path
+         transform="scale(0.7)"
+         d="M -2,-4 9,0 -2,4 c 2,-2.33 2,-5.66 0,-8 z"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:none"
+         id="path20" />
+    </marker>
+    <marker
+       style="overflow:visible"
+       id="marker19"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       markerWidth="1.5"
+       markerHeight="1.5"
+       viewBox="0 0 1 1"
+       preserveAspectRatio="xMidYMid">
+      <path
+         transform="scale(0.7)"
+         d="M -2,-4 9,0 -2,4 c 2,-2.33 2,-5.66 0,-8 z"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:none"
+         id="path19" />
+    </marker>
+    <marker
+       style="overflow:visible"
+       id="marker15"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       markerWidth="1"
+       markerHeight="1"
+       viewBox="0 0 1 1"
+       preserveAspectRatio="xMidYMid">
+      <path
+         transform="scale(0.7)"
+         d="M -2,-4 9,0 -2,4 c 2,-2.33 2,-5.66 0,-8 z"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:none"
+         id="path15" />
+    </marker>
+    <marker
+       style="overflow:visible"
+       id="ConcaveTriangle"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       markerWidth="1"
+       markerHeight="1"
+       viewBox="0 0 1 1"
+       preserveAspectRatio="xMidYMid">
+      <path
+         transform="scale(0.7)"
+         d="M -2,-4 9,0 -2,4 c 2,-2.33 2,-5.66 0,-8 z"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:none"
+         id="path13" />
+    </marker>
+  </defs>
+  <g
+     id="layer1"
+     transform="translate(-35.299903,-70.575616)">
+    <path
+       style="fill:#000000;stroke:#000000;stroke-width:0.964999"
+       d="m 38.983257,112.21197 c 132.306273,-0.34454 132.306273,-0.34454 132.306273,-0.34454 l -1.03364,-0.6891 0.6891,0.34455"
+       id="path1" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.93889px;line-height:0;font-family:Courier;-inkscape-font-specification:Courier;writing-mode:lr-tb;direction:ltr;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.165;stroke-dasharray:none"
+       x="89.976303"
+       y="148.38942"
+       id="text1"><tspan
+         id="tspan1"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.93889px;line-height:0;font-family:Courier;-inkscape-font-specification:Courier;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.165;stroke-dasharray:none"
+         x="89.976303"
+         y="148.38942" /></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.9389px;line-height:0;font-family:Courier;-inkscape-font-specification:Courier;writing-mode:lr-tb;direction:ltr;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.165;stroke-dasharray:none"
+       x="149.23845"
+       y="109.80013"
+       id="text2"><tspan
+         id="tspan2"
+         style="line-height:0;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.165;stroke-dasharray:none"
+         x="149.23845"
+         y="109.80013">Sweep Line</tspan></text>
+    <path
+       style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.165;stroke-dasharray:none"
+       d="m 65.857967,111.86743 c -22.395592,29.97563 -22.395592,29.97563 0,0 z"
+       id="path2" />
+    <path
+       style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.165;stroke-dasharray:none"
+       d="m 61.034301,112.55652 c -18.26102,29.28654 -18.26102,29.28654 -18.26102,29.28654"
+       id="path3" />
+    <path
+       style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.465;stroke-dasharray:none;stroke-opacity:1"
+       d="m 63.446134,111.86743 c -19.983759,32.04292 -19.983759,32.04292 -19.983759,32.04292 v 0"
+       id="path4" />
+    <path
+       style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.465;stroke-dasharray:none;stroke-opacity:1"
+       d="m 63.101586,112.21197 c 13.092808,24.46288 13.092808,24.46288 13.092808,24.46288"
+       id="path5" />
+    <path
+       style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.465;stroke-dasharray:none;stroke-opacity:1"
+       d="m 85.15263,103.59828 c 16.53829,40.31207 16.53829,40.31207 16.53829,40.31207"
+       id="path6" />
+    <path
+       style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.465;stroke-dasharray:none;stroke-opacity:1"
+       d="M 109.61552,99.463699 C 91.009939,138.05304 91.009939,138.05304 91.009939,138.05304"
+       id="path7" />
+    <path
+       style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.465;stroke-dasharray:none;stroke-opacity:1"
+       d="m 126.8429,106.01012 c -11.71462,26.18561 -11.71462,26.18561 -11.71462,26.18561"
+       id="path8" />
+    <path
+       style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.465;stroke-dasharray:none;stroke-opacity:1"
+       d="m 132.01111,106.01012 c 22.74014,24.11833 22.74014,24.11833 22.74014,24.11833"
+       id="path9" />
+    <path
+       style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.465;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#ConcaveTriangle)"
+       d="m 42.345666,112.73282 c 0,8.17351 0,8.17351 0,8.17351"
+       id="path12" />
+    <path
+       style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.465;stroke-dasharray:none;stroke-opacity:1;marker-end:url(#marker15)"
+       d="m 165.84232,112.22198 c 0,10.08917 0,10.08917 0,10.08917"
+       id="path14" />
+    <path
+       style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.465;stroke-dasharray:1.86, 0.465;stroke-dashoffset:0;stroke-opacity:1"
+       d="M 37.417749,79.057038 C 169.68511,78.386763 169.68511,78.386763 169.68511,78.386763"
+       id="path16" />
+    <path
+       style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.465;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker-end:url(#marker20)"
+       d="m 40.545693,79.057038 c 0.223425,10.947804 0.223425,10.947804 0.223425,10.947804"
+       id="path17" />
+    <path
+       style="fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.465;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker-end:url(#marker19)"
+       d="m 164.54634,78.833613 c 0,10.500955 0,10.500955 0,10.500955"
+       id="path18" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.9389px;line-height:0;font-family:Courier;-inkscape-font-specification:Courier;writing-mode:lr-tb;direction:ltr;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.165;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       x="142.20384"
+       y="76.375946"
+       id="text20"><tspan
+         id="tspan20"
+         style="stroke-width:0.165;stroke-dasharray:none"
+         x="142.20384"
+         y="76.375946">Sweep Line</tspan></text>
+  </g>
+</svg>

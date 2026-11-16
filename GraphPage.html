@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SweepAlgorithm</title>
+  <link rel="shortcut icon" href="libraries/drdrugus.ico" type="image/x-icon">
+  <link rel="stylesheet" type="text/css" href="libraries/altStyle.css">
+  <!-- <script src="libraries/p5.min.js"></script> -->
+  <script src="https://cdn.jsdelivr.net/npm/p5@2.3.2/lib/p5.js"></script>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/p5.sound@0.4.1/dist/p5.sound.min.js"></script> -->
+  <script>MathJax = {
+      tex: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]],
+        displayMath: [["\\[", "\\]"], ["$$", "$$"]]
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@4.1.0/tex-mml-chtml.js"> async</script>
+</head>
+
+<body>
+  <a href="index.html" class="button">Introduction</a><br>
+  
+  <progress id="eventProgress" value="0" max="100"></progress>
+  <span id="progressText">0%</span><br>
+
+  <button id="clearr">TextClear</button>
+
+  <input type="range" min="-200" max="200" value="190" class="slider" id="sweep"> <!-- SLIDER-->
+
+  Value: <input id="swee" value="190" size="5">
+
+  <button id="listSegs">list<br>Segs</button>
+  <button id="showSweepEvents" onclick="showEvents()">show Events</button>
+  <button id="processEvent">Process</button>
+  <button id="compareInts">Compare Intersections</button><br>
+  <!-- <button id="drawagain" onclick="redraw()">redraw</button><br> -->
+  <!-- <button id="printTree">printTree</button> -->
+  <!-- <button id="treeOrder">treeOrder</button> -->
+  <button id="processASAP" onclick="runASAP()">process ASAP</button>
+
+  <button id="intersectionList">IntersectionList</button>
+  <!-- remove id="t" look for "doThis" and fix this!!! -->
+  <button id="t" style="background:red"
+    onclick="this.style.background=this.style.background=='red'?'green':'red'">TEST</button>
+
+  <button id="repeatSetUp" onclick="repeatableSetUp()">reStart</button>
+  <button id="dataMode" style="background:green"
+    onclick="this.style.background=this.style.background=='red'?'green':'red'">Random</button>
+  <label name="segNumber">Segment#</label>
+  <input id="segNumber" size="5" value="30"><br>
+  <button id="animateButton" class="animateOff">AnimateOFF</button>
+  A green TEST tries to make nearby points be a single point.&nbsp;
+  <output id="intersectionCount"></output><br>
+  <label name="pauseTime">Event Pause Time (ms)</label>
+  <input id="pauseTime" value="10" size="5">
+  <label name="sweepSpeed">SweepSpeed (ms)</label>
+  <input id="sweepSpeed" value="1" size="5">
+  <output id="estimate"></output>
+
+
+
+  <!-- The p5.js canvas will go here. If you want it above the canvas, move this div to above the container.
+       if you want it below the canvas then move it below the container. -->
+
+
+
+
+  <div id="container">
+    <div id="cvs">
+      <!-- Your p5.js canvas will go here. If you want it above the container, move this div to above the container.
+        -->
+    </div>
+    <div id="Div1">
+      <!-- Your text data here -->
+      <!-- <p>Some text information</p> -->
+    </div>
+    <div id="Div2">
+    </div> <!-- end of Div2-->
+
+    <div id="Div3">
+    </div> <!-- end of Div3-->
+
+  </div> <!-- end of div containerr -->
+  <script src="compareIntersections.js"></script>
+  <script src="testSegments.js"></script>
+  <script src="Intersection.js"></script>
+  <script src="SweepEvent.js"></script>
+  <script src="Point.js"></script>
+  <script src="Segment.js"></script>
+  <script src="preProcess.js"></script>
+  <script src="TreeNode.js"></script>
+  <script src="BST.js"></script>
+  <script src="util.js"></script>
+  <script src="main.js"></script>
+</body>
+<!-- use the following code in javascript (if needed) to force js display.  
+ if (window.MathJax) {MathJax.typeset();} -->
+
+</html>

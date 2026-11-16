@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SweepAlgorithm</title>
+  <link rel="shortcut icon" href="libraries/drdrugus.ico" type="image/x-icon">
+  <link rel="stylesheet" type="text/css" href="libraries/style.css">
+  <!-- <script src="libraries/p5.min.js"></script> -->
+  <script src="https://cdn.jsdelivr.net/npm/p5@2.3.2/lib/p5.js"></script>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/p5.sound@0.4.1/dist/p5.sound.min.js"></script> -->
+  <script>MathJax = {
+      tex: {
+        inlineMath: [["$", "$"], ["\\(", "\\)"]],
+        displayMath: [["\\[", "\\]"], ["$$", "$$"]]
+      }
+    };
+  </script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@4.1.0/tex-mml-chtml.js"> async</script>
+</head>
+
+<body class="p1">
+  <a href="GraphPage.html" class="button">Return to Start</a>
+  <h2>Sweep Line Method for Segment Intersection Detection</h2>
+
+
+
+  <div id="most_stuff">
+    <p>
+      Previously, I have done line segment intersection
+      <a href="https://qpsllc.com/SegmentIntersection/index.html">Segment Intersection</a> by a method that
+      is not considered efficient, $O(n^2).$ That algorithm is what is termed the naive method. The work
+      function just tests every segment against every other segment to see if there is an
+      intersection. Here is the flow of the algorithm. When the function
+      has intersection is true, then it returns true and the number of intersections is incremented.
+      Most notably, even though the program has the code to compute intersection points, it didn't do
+      that. It merely decided if segments intersect and then drove on. Which is fine for only a count.
+    <pre><code>
+for (let i = 0; i < g.length; i++) {
+    for (let j = i; j < g.length; j++) {
+      if (i != j) {
+        let p0 = [g[i][0], g[i][1]]; //first endpoint of a segment
+        let p1 = [g[i][2], g[i][3]]; //second endpoint of the segment
+        let q2 = [g[j][0], g[j][1]]; //first endpoint of next segment
+        let q3 = [g[j][2], g[j][3]]; //second enpoint of next segment
+        let Ig = hasIntersection(p0, p1, q2, q3);
+        if (Ig) { cnt = cnt + 1; }
+      }
+    }
+  }
+  </code></pre>
+    </p>
+    In this project, we will use a sweep line method and process the
+    points from top to bottom. <em>We need only check for intersection
+      between points that are adjacent on the sweep line.</em> We are saying
+    that segments that are close together are the only ones that can
+    intersect. Clearly, if the segments are ever going to intersect,
+    then they will be close together!
+    </p>
+    <p>
+      This doesn't sound very important, but it is critical to the method. Every intersection
+      involves at least two non-parallel segments. On a horizontal sweep line, if those
+      segments intersect,
+    <div style="text-align: center;">
+      <img src="libraries/SweepLine00.svg" width="50%">
+    </div>
+    then the intersection will be exactly at the sweep line, or
+    else below it. The segments can never intersect above the sweep
+    line because we start the sweep line above all segments. In the
+    figure, the left image shows two segments that intersect at their
+    beginning. The middle figure shows segments that first will
+    encounter the sweep line and later intersect. The third pair
+    of segments, if they were lines would intersect, but they are
+    not lines and therefore never intersect. Furthermore, two segments
+    that are going to intersect will become adjacent along the
+    sweep line at least just before the intersection. Therefore,
+    any time two segments are adjacent, we can compute dtheir
+    intersection and be assured that eventually we will find all
+    intersections, and do so without testing all pairs of segments.
+    </p>
+
+
+    <h3>How the algorithm works</h3>
+    <p>
+      We have to know the order of segments crossing the
+      sweep Line from left to right. A way to do that is
+      to keep track of segments on the sweep line in a binary
+      search tree (BST). I am not going to explain the BST code
+      here, but I will state its methods and briefly detail what
+      each one does.
+    </p>
+    To operate the BST, we use four classes. Here is the constructor list.
+    <pre><code>
+    class Point {
+      constructor(id, x, y) {
+        this.id = id;
+        this.x = x;
+        this.y = y;
+      }
+    }
+
+    class TreeNode {
+      constructor(segment) {
+        this.segment = segment;
+        this.left = null;
+        this.right = null;
+        this.parent = null;
+      }
+    }
+
+    class Segment {
+      constructor(id, p1, p2) {
+          this.id = id;
+          this.p1 = p1;
+          this.p2 = p2;
+          this.directionVector = [p2.x - p1.x, p2.y - p1.y];
+      }
+    }
+
+    class SweepEvent {
+      constructor(y, type, segments, x = null) {
+          this.y = y;
+          this.x = x;
+          this.type = type;
+          this.segments = segments;
+      }
+    }
+    </code></pre>
+    For anyone new to this idea, the BST constructor is probably the most
+    confusing of all because it is essentially empty.
+    <pre><code>
+    class BST {
+      constructor() {
+        this.root = null;
+      }
+    }
+    </code></pre>
+    If you are new to BST, I recommend <a
+      href="https://www.geeksforgeeks.org/python/binary-search-tree-in-python/">https://www.geeksforgeeks.org/python/binary-search-tree-in-python/</a>
+    as a good starting point. Once you have understood it in some language, translation to another is substantially
+    easier.
+
+    <h4> BST methods </h4>
+    These methods will be defined based on a BST used to store segments adjacent to each other on the sweep line.
+    <ul>
+      <li>Insert: insert(segment) Add a segment to the BST, such that it is correctly sorted from left to right along
+        the sweep Line.</li>
+      <li>Find a node: findNode(segment) I haven't said what a node is. In this context it is an object of the class
+        TreeNode() and it is
+        only ever temporarily built. After building it is a segment and stored in the segments array.</li>
+      <li>Delete: delete(segment) Remove a segment from the BST and keep every segment in the correct order along the
+        line.</li>
+      <li>PrintInOrder: printInOrder(node) 'node' should be the BST root = sweepTree.root. </li>
+      <li>getSegmentsInOrder(): Returns an array of segment objects in order along the sweep line. </li>
+      <li>printTree(node): //node should be the BST root = sweepTree.root. Prints the tree to the console such that it
+        can be constructed by hand.</li>
+      <li>Predecessor: predecessor(segment) Return the in-order predecessor of the node containing 'segment', or null if
+        it has none. This is how we find which
+        segments are adjacent.</li>
+      <li>Successor: successor(segment) Return the in-order successor of segment, or null if it has none.</li>
+      <li>buildBalanced(arr): sweepTree.buildBalanced(orderedSegments); //build new tree from orderedSegments. sweepTree
+        is an array
+        of segments that are current on the sweep line</li>
+    </ul>
+
+    <h4>Segment Pre-processing</h4>
+    There is good reason to pre-process the segments. For one thing, there is no use in having a degenerate segment,
+    where the two ends of the segment are represented by the same point. So we can make one trip through all of the
+    segments and
+    remove those. Also, we don't want to consider overlapping segments, where there would be an infinite number of
+    intersections. To avoid
+    that, we break overlapping segments into discreet segments which share an endpoint. In the figure, three overlapping
+    segments have been processed
+    into five new segments that share end points but do not overlap, except for that shared point.
+
+    <div style="text-align: center;">
+      <img src="libraries/SweepLineOverlaps.svg">
+    </div>
+    So preProcessing conditions the input data, but that is all that it does. For example, it does not effect the event
+    queue.
+    It only changes the segment data so that there are no segment overlaps that might cause infinite intersections. Also
+    if
+    two colinear segments are completely disjoint, that is, they do not even share an end point, then preProcessing
+    leaves them
+    alone.
+
+    <h4>Segment orientation</h4>
+    <p>Since a sweepLine is going to come from above the segments (larger y value), it is desireable to orient the
+      segments such that
+      each segments has its first end point higher than its second one. That way, when a segment is encountered, we know
+      immediately
+      where to find its upper end point. Horizontal segments are also oriented and their least x value is made to the be
+      first end
+      point.
+    </p>
+
+    <h4>Shared end points</h4>
+    <p>When two segments share a single end point, then that end point is obviously an intersection of those segments.
+      As such, it is made into an intersection event. So those events can be put into the event queue before we begin
+      processing the queue. Discovering those shared end points must be done with attention to time complexity. We
+      can't just compare every segments points with every other segments points! So what we do is build and end point
+      Map
+      using javascript's (Map) feature. (Identical to Python's Dictionary). The Map key will be a string made from the
+      segment's point.x and point.y. The Maps value will be the segment Id. Here is the function that does it. Note that
+      it uses a function expression named addEndPoint which cannot be hoisted. This code just builds and returns the
+      map.
+    </p>
+    <pre><code>
+      function buildEndpointMap(segments) {
+        const m = new Map();
+        const addEndpoint = (point, segmentId) => {
+            const ky = `${point.x},${point.y}`;
+            if (!m.has(ky)) {
+                m.set(ky, []);
+            }
+            m.get(ky).push(segmentId);
+        };
+          //for all segments, add 2 endpoints per segment
+          for (const seg of segments) {
+              addEndpoint(seg.p1, seg);
+              addEndpoint(seg.p2, seg);
+          }
+          return m;
+      }
+    </code></pre>
+    <p>
+      Next we need a function that calls buildEndpointMap so that we can learn which segments actually
+      share a point. The function sharedPoints(segments) will create yet another Map which checks if
+      the number of segments with the same end point is multiple (2 or more). If it is, then that point is
+      added to the new Map, and it is returned. Here is the code for that piece.
+    </p>
+    <pre><code>
+        function sharedPoints(segments) {
+            const endpointMap = buildEndpointMap(segments);
+            debugLog(endpointMap);
+            const result = new Map();
+            for (const [key, segs] of endpointMap) {
+                if (segs.length > 1) { //more than 1 point occurs at that coordinate
+                    result.set(key, segs);
+                }
+            }
+            return result;
+        }
+    </code></pre>
+    <p>
+      Finally, just before beginning to process the queue, we have to take the end points which are
+      shared by multiple segments and create intersection events from them. To do that, we have to
+      disect the "shared" map and add unique points to a global set named recordedIntersectionPairs.
+    </p>
+    <pre><code>
+        function recordSharedEndpointIntersections(shared) {
+            for (const [key, segs] of shared) {
+                /*
+                key is a string like "3,7" (a coordinate pair encoded as text).
+                .split(",") turns it into ["3", "7"].
+                .map(Number) turns it into [3, 7] (real numbers).
+                Destructuring assigns x = 3, y = 7.
+                So the next line is a compact way of parsing string "x,y" 
+                into two numeric coordinates.
+                */
+                const [x, y] = key.split(",").map(Number);
+
+                // Every distinct pair of segments sharing this point.
+                for (let i = 0; i < segs.length; i++) {
+                    for (let j = i + 1; j < segs.length; j++) {
+                        const s1 = segs[i];
+                        const s2 = segs[j];
+                        const pair = pairKey(s1, s2);
+
+                        if (recordedIntersectionPairs.has(pair)) {
+                            continue;
+                        }
+
+                        recordedIntersectionPairs.add(pair);
+                        intersections.push(new Intersection(s1, s2, x, y));
+                    }
+                }
+            }
+        }
+
+function pairKey(s1, s2) {
+    return s1.id < s2.id
+        ? `${s1.id},${s2.id}`
+        : `${s2.id},${s1.id}`;
+}
+      </code></pre>
+    <p>
+      The tiny bit of code that sews this all together is still a part of setup() in p5.js. It merely
+      gets the shared points, makes an intersection event from them and also adds the segments to
+      the global recordUniqueIntersection(x,y,segs) so the user knows about them too. The most important
+      line in the code below is <em>events.push(new SweepEvent).</em>
+    </p>
+    <pre><code>
+        shared = sharedPoints(segments);
+        //make intersection events from segments that overlap at a single point only.
+        let j = 0;
+        for (const [key, segs] of shared) {
+          //assign the event point to x and y as numbers
+            const [x, y] = key.split(",").map(Number); 
+            <b>events.push(new SweepEvent(y, "intersection", segs, x));</b>
+            recordUniqueIntersection(x, y, segs);
+            ++j;
+        }
+      </code></pre>
+    <p>
+      However, during processing of the events, other intersections will be discovered due to testing
+      adjacent events that are on the sweep line. They must be inserted into the event queue in the
+      correct order. No new events will ever have to be placed above the sweep line, but it is
+      importanat that we always process the next event in the queue, knowing that such event may not
+      have been there until after the current event has been processed.
+    </p>
+
+    <h4>Event Queue</h4>
+    <p>
+      An event queue is an array of object from the class SweepEvent(). It has coordinates on the plane (x,y), a "type",
+      and an array of segment
+      objects. Those segment objects are pertinent to the event. The "type" of event can be
+    <ul>
+      <li>"Insert" A segment has appeared on the sweep line and gets added to the BST.</li>
+      <li>"Delete" A segment has appeared on the sweep line and </li>
+      <li>"Intersection"</li>
+      <li>"Horizontal".</li>
+    </ul>
+    </p>
+    <p>The event queue has been partially filled before processing it begin. It has all of its "Insert" and "Delete"
+      events as well as any intersections as a result of segment end point matches.
+
+      Each one of the events gets different event handling. After segments have been created and preProcessed, each
+      ordinary point has become either an insert event or a delete event. An ordinary point is one end of an ordinary
+      segment, which is a segment that is not horizontal. Its upper end point becomes an "insert" event and its lower
+      end
+      point becomes a "delete" evenet. Each segment with two ordinary points is therefore two events. It does not matter
+      if the segment shares an end point with another segment or even multiple segments because that is handled in event
+      processing and shared end points in the data set were already added as intersection events. The idea is that many
+      events are in the event queue prior to the sweep line starting down the page.
+    </p>
+
+    <h4>Event Processing</h4>
+    <p>
+      There are three different drivers for processing events. Think of them as "manual", "controlled speed", and
+      "fast".
+      They all do the same thing, so I will explain only the "manual" method. The important javascript:
+    <pre><code>const nextEvent = events.find(e => !processedEvents.has(e));</code></pre>
+    This JavaScript code searches through an array called events to find the first event that has not been processed
+    yet, as indicated by the processedEvents set. The result is stored in the variable nextEvent. Finally, the
+    processing will get underway with exactly and only the next event.
+    </p>
+    <p>
+      At an "insert" event a segment is put into the BST in its proper place. Then we figure out what segments are
+      adjacent to the new segment and if they intersect. Remember all intersections will be below the sweep line. If
+      they intersect, then we have to add them to the event queue and likely need to sort again that queue. We also need
+      to add the intersection to a growing list of unique intersections, which is carried as a Map for convenience.
+      The key of uniqueIntersections is `${x}, ${y}` and its values is an array with name segments.
+    </p>
+    <p>
+      At a "delete" event, we remove the segment from hte BST, but doing that may cause new segments to become
+      adjacent. Those then have to be checked for intersection, and if they intersect, then the same sequence as before
+      must take place.
+    </p>
+    <p>
+      So what happens at an "intersection" event?
+    <ul>
+      <li>Get the complete BST ordering (array "orderedSegments") and put the array of segments that intersect at this
+        event into 'iarr'.</li>
+      <li>An intersection event includes more than one segment, usually two, but could be any number greater than one.
+        So we have a line of code:
+        <pre><code>
+let activeSegments = iarr.filter(segment => orderedSegments.includes(segment));
+        </code></pre>
+      </li>
+      <p>
+        This JavaScript code performs a specific operation on two arrays, "iarr" and "orderedSegments". Here is a
+        breakdown of its components:
+      <ul>
+        <li>iarr: This is the original array from which elements will be filtered.</li>
+        <li>orderedSegments: This is another array that contains the values to check against.</li>
+        <li>filter() Method: This method creates a new array filled with elements that pass a test provided by a
+          function.
+          In this case, the test is whether each element in iarr is included in orderedSegments.</li>
+        <li>Arrow Function: The syntax segment => orderedSegments.includes(segment) is an arrow function that takes each
+          element
+          (referred to as segment) from iarr and checks if it exists in orderedSegments.</li>
+        <li>includes() Method: This method checks if a specific value (in this case, segment) is present in the
+          orderedSegments array.
+          It returns true if the value is found and false otherwise.</li>
+      </ul>
+      The result of this operation is that activeSegments will be a new array containing only those elements from iarr
+      that are also found
+      in orderedSegments. Suppose that two segments, A and B, share an end point. One of them, let it be A, would have
+      been deleted from
+      "orderedSegments" before the intersection event was encountered. So 'iarr' would contain both A and B, since they
+      are involved in
+      the intersection event, but orderedSegments would have had only B. Thus "activeSegments" would contain but one
+      segment, B.
+      </p>
+      <li>Now we need to reorder the activeSegments so that they are the same as the BST.</li>
+      <li>Then the activeSegments can be reversed. That is, if segments entered the intersection in the order A B C D,
+        they need to exit
+        the intersection in the order D C B A. This order can then be spiced into "orderedSegments" which is external to
+        the BST,
+      </li>
+      <li>and the BST can be rebuilt and while we are at it, balanced.</li>
+      <li>Reworking the BST also means checking new adjacencies and perhaps adding any new intersections to the event
+        queue.</li>
+    </ul>
+    </p>
+
+    <p>
+      The last event type is a "horizontal" line. We keep this aside from the BST and handle it as an exception. A
+      horizontal line
+      results in the greatest time complexity of any event.
+    <ul>
+      <li>We proceed through all of the "not horizontal segments" one time. Most
+        likely, that can be a large number.
+      </li>
+      <li>We then test each of those segments for an intersection with our horizontal event. Fortunately,
+    testing to see if there is an intersection is quite a bit faster than finding that intersection.
+      </li>
+      <li>Of course if there is an intersection, then we find and record it.</li>
+    </ul>
+    
+    </p>
+
+  </div> <!-- end div "most_stuff" -->
+</body>
+
+</html>
