@@ -110,25 +110,25 @@ function recordUniqueIntersection(x, y, segments) {
   */
 
 function recordUniqueIntersection(x, y, segments) {
-    const rx = roundCoord(x);
-    const ry = roundCoord(y);
-    const key = `${rx}, ${ry}`;
+  const rx = roundCoord(x);
+  const ry = roundCoord(y);
+  const key = `${rx}, ${ry}`;
 
-    if (!uniqueIntersections.has(key)) {
-        uniqueIntersections.set(key, {
-            x: rx,
-            y: ry,
-            segments: []
-        });
+  if (!uniqueIntersections.has(key)) {
+    uniqueIntersections.set(key, {
+      x: rx,
+      y: ry,
+      segments: []
+    });
+  }
+
+  const item = uniqueIntersections.get(key);
+
+  for (const segment of segments) {
+    if (!item.segments.some(s => s.id === segment.id)) {
+      item.segments.push(segment);
     }
-
-    const item = uniqueIntersections.get(key);
-
-    for (const segment of segments) {
-        if (!item.segments.some(s => s.id === segment.id)) {
-            item.segments.push(segment);
-        }
-    }
+  }
 }
 
 
@@ -141,12 +141,12 @@ function sortEvents() {
     insert: 3
   };
 
-//   const eventPriority = {
-//     insert: 0,
-//     intersection: 1,
-//     horizontal: 2,
-//     delete: 3
-// };
+  //   const eventPriority = {
+  //     insert: 0,
+  //     intersection: 1,
+  //     horizontal: 2,
+  //     delete: 3
+  // };
 
   events.sort((a, b) =>
     (b.y - a.y) ||
@@ -251,16 +251,21 @@ function det3x3(a, b, c, d, e, f, g, h, i) {
 // }
 
 const gcd = (a, b) => {
-    a = Math.abs(a);
-    b = Math.abs(b);
 
-    while (a !== 0) {
-        let remainder = b % a;
-        b = a;
-        a = remainder;
-    }
+  if (!Number.isFinite(a) || !Number.isFinite(b)) {
+    throw new Error(`Invalid GCD arguments: ${a}, ${b}`);
+  }
 
-    return b;
+  a = Math.abs(a);
+  b = Math.abs(b);
+
+  while (a !== 0) {
+    let remainder = b % a;
+    b = a;
+    a = remainder;
+  }
+
+  return b;
 };
 
 
@@ -324,9 +329,9 @@ function findStandardIntersections() {
       const si = segments[i];
       const sj = segments[j];
       if (hasIntersect(si.p1.x, si.p1.y, si.p2.x, si.p2.y,
-                       sj.p1.x, sj.p1.y, sj.p2.x, sj.p2.y)) {
+        sj.p1.x, sj.p1.y, sj.p2.x, sj.p2.y)) {
         [ix, iy] = intersectionPoint(si.p1.x, si.p1.y, si.p2.x, si.p2.y,
-                                     sj.p1.x, sj.p1.y, sj.p2.x, sj.p2.y);
+          sj.p1.x, sj.p1.y, sj.p2.x, sj.p2.y);
         recordStdIntersection(ix, iy, [si, sj]);   // <-- THIS
         cnt++;
       }

@@ -1,0 +1,180 @@
+html {
+  height: 100%;
+}
+
+.animateOn {
+  background-color: green;
+  color: white;
+}
+
+.animateOff {
+  background-color: red;
+  color: white;
+}
+
+.button {
+  display: inline-block;
+  padding: 5px 10px;
+  background-color: #007BFF;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+}
+
+.button:hover {
+  background-color: #0056b3;
+}
+
+/* Set width using em units (relative to font size) */
+input.ch-width {
+  width: 5ch;
+  box-sizing: border-box;
+  padding: 2px;
+  font-family: inherit;
+  /* font-family: Fira Sans; */
+  /* makes 5ch predictable */
+}
+
+input.ch-width1 {
+  width: 9ch;
+  box-sizing: border-box;
+  padding: 2px;
+  font-family: inherit;
+  /* font-family: Fira Sans; */
+  /* makes 5ch predictable */
+}
+
+.p1 {
+  padding: 5px;
+  border: green 1px solid;
+  width: 50%;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+@media (max-width: 960px) {
+  .p1 {
+    width: 100%;
+  }
+}
+
+/* Canvas: upper-left, spans both content rows */
+/*
+#cvs {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  background-color: rgb(206, 208, 92);
+  width: 400px;
+  height: 400px;
+  margin: 0;
+  border: 3px solid green;
+  box-sizing: content-box;
+  /* outer = 406 x 406 */
+  /*
+}
+*/
+
+/* Div1 and Div2: to the right of canvas, expandable, left-aligned with each other */
+/*
+#Div1,
+#Div2 {
+  grid-column: 2;
+  width: max-content;
+  box-sizing: border-box;
+  padding: 10px;
+  font-size: 1.2em;
+  min-height: 100px;
+}
+
+#Div1 {
+  grid-row: 1;
+  border: 1px solid green;
+}
+
+#Div2 {
+  grid-row: 2;
+  border: 2px solid rgb(0, 255, 255);
+}
+*/
+/* Div3: starts at LEFT edge of page, below everything, full width to fit content */
+/*
+#Div3 {
+  grid-column: 1 / -1;
+  /* span both columns, starting at far left */
+  /*
+  grid-row: 3;
+  width: max-content;
+  /* as wide as its content needs */
+  /*
+  max-width: 100%;
+  /* but don't force horizontal scroll of the page */
+  /*
+  box-sizing: border-box;
+  padding: 10px;
+  border: 1px solid #888;
+}
+*/
+
+#container {
+  display: grid;
+  /* Left column sizes to the canvas (400px). 
+     Right column takes the remaining space. */
+  grid-template-columns: 400px 1fr;
+  grid-template-rows: auto auto;
+  gap: 10px; 
+  padding: 10px;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+#cvs {
+  grid-column: 1;
+  grid-row: 1;
+  background-color: rgb(237, 237, 239);
+  width: 400px;
+  height: 400px; /* p5.js canvas size */
+  border: 3px solid green;
+  box-sizing: border-box;
+}
+
+#Div1 {
+  grid-column: 2;
+  grid-row: 1;
+  border: 1px solid green;
+  padding: 10px;
+  min-height: 100px;
+  box-sizing: border-box;
+  font-size: 1.2em;
+}
+
+#Div2 {
+  /* Put Div2 strictly in the left column, row 2 */
+  grid-column: 1;
+  grid-row: 2;
+  
+  /* Allow it to fill the 400px column (under the canvas) */
+  width: 100%;
+  
+  /* Ensure long words don't break out of the box */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  
+  border: 1px solid blue;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+#Div3 {
+  grid-column: 2;
+  grid-row: 2;
+  
+  /* Ensure it sits at the top of row 2, even if Div2 is short */
+  align-self: start;
+  
+  /* If Div3 is empty, it collapses to 0 height. */
+  border: 1px solid red;
+  padding: 10px;
+  box-sizing: border-box;
+}

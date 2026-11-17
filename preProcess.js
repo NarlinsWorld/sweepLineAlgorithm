@@ -115,7 +115,7 @@ function preProcess(segments) {
     const eraseIds = new Set(segmentsToErase.map(s => s.id));
     debugLogPreProcess('eraseIds:', eraseIds);
 
-   const finalSegments = [];
+    const finalSegments = [];
     for (const seg of segments) {
         if (!eraseIds.has(seg.id)) {
             finalSegments.push(seg);
@@ -128,9 +128,9 @@ function preProcess(segments) {
 
     //renumber all segments.
     for (let i = 0; i < finalSegments.length; i++) {
-    finalSegments[i].id = i;
-}
-    
+        finalSegments[i].id = i;
+    }
+
 
     debugLogPreProcess("segmentsToErase:", segmentsToErase);
     debugLogPreProcess("newSegments:", newSegments);
@@ -147,7 +147,27 @@ function createSegmentsOnLine(segments) {
     const groups = new Map();
     for (const segment of segments) {
 
+        //const kee = makeSegmentKey(segment); //put this back the change is temporary
+        //debug lines
+        if (
+        !Number.isFinite(segment.p1.x) ||
+        !Number.isFinite(segment.p1.y) ||
+        !Number.isFinite(segment.p2.x) ||
+        !Number.isFinite(segment.p2.y)
+    ) {
+        console.error("INVALID SEGMENT:", {
+            id: segment.id,
+            p1x: segment.p1.x,
+            p1y: segment.p1.y,
+            p2x: segment.p2.x,
+            p2y: segment.p2.y
+        });
+    }
+
         const kee = makeSegmentKey(segment);
+        //end debug lines
+
+
         //PreProcess(kee);
         if (!groups.has(kee)) {
             groups.set(kee, []);
@@ -171,6 +191,7 @@ function makeSegmentKey(segment) {  //key will be algebraic line equation
             C = -C;
         }
     }
+    
     let GCD = gcd(A, gcd(B, C))
     let A1 = A / GCD;
     let B1 = B / GCD;

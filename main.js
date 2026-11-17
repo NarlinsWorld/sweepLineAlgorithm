@@ -28,6 +28,7 @@ let pauseUntil = 0;
 let minY = Infinity; //used to compute progress bar
 let maxY = -Infinity; //used to compute progress bar
 let stdIntersections = new Map;
+let maxLen = Number(document.getElementById("maxLen").value);
 
 // Global, starts true, button starts green
 var doThis = false;
@@ -452,7 +453,6 @@ function createRandomSegments(n, maxLen = 400) {
             i--;
             continue;
         }
-
         segments.push(
             new Segment(i,
                 new Point(cnt, x1, y1),
@@ -460,13 +460,12 @@ function createRandomSegments(n, maxLen = 400) {
         );
         cnt += 2;
     }
-    debugLog('doThis', doThis, "Combining some nearby points");
+
     if (doThis) combineCloseByPoints();  //not efficient.  Use for making test data only.
     segments = preProcess(segments);
     orientSegments();
     makeEvents();
     debugLog('minY = ', minY, ' maxY = ', maxY); //used to calculate progress bar
-
     sortEvents();
 }
 
