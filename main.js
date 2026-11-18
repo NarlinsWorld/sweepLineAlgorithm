@@ -44,7 +44,7 @@ btn.onclick = () => {
 
 
 // Global, starts true green. to use if( doRandom) whatever();
-var doRandom = false;
+var doRandom = true;                 // Change this line to swap the start state
 const btn1 = document.getElementById('dataMode');
 function render1() {
     btn1.style.background = doRandom ? 'green' : 'red';
@@ -59,7 +59,7 @@ render1();  // startup: green, "Random"
 
 //================================================================
 function setup() {
-    let canvas = createCanvas(400, 400);
+    let canvas = createCanvas(1600, 400);
     canvas.parent("cvs");
     animate = false;
     noLoop();
@@ -104,6 +104,7 @@ function repeatableSetUp() {
     //use the standard method to find intersections
     //estimated = countIntersections(); //it counts only.
     let beginStd = performance.now();
+
     findStandardIntersections()
     // Include intersections at shared endpoints
     for (const [key, segs] of shared) {
@@ -577,57 +578,13 @@ function processEvent(event, refresh = true) {
     sweepY = event.y;        // Update the height used by the BST
     displaySweepY = event.y; // Update the displayed sweep line
 
-    //debug lines
-    // Check BST ordering just below the current event
-    // const checkOrder = sweepTree.getSegmentsInOrder();
-
-    // for (let i = 1; i < checkOrder.length; i++) {
-    //     const x1 = checkOrder[i - 1].xAt(sweepY + epsilon);
-    //     const x2 = checkOrder[i].xAt(sweepY + epsilon);
-
-    //     if (x1 > x2) {
-    //         console.log("FIRST BST ORDER VIOLATION");
-    //         console.log("Current event:", event.toString());
-    //         console.log(`S${checkOrder[i - 1].id}: x=${x1}`);
-    //         console.log(`S${checkOrder[i].id}: x=${x2}`);
-    //         break;
-    //     }
-    // }
-    //end debug lines
-
-
     debugLog(`------ Event ${processedEventCount++}:`, event.toString()); //for debug only method is in SweepEvent
     let cnt = 0; //count the number of intersections added just for this event
     let candidates = [];
     let p; //predecessor
     let s; //successor
 
-    //debug lines
-    // if (event.type === "insert" && event.y === 168) {
-    //     const s3 = segments.find(s => s.id === 3);
-    //     const s10 = segments.find(s => s.id === 10);
-
-    //     console.log("FIRST INSERT AT y=168:", event.toString());
-
-    //     console.log("S3:", {
-    //         p1: s3.p1,
-    //         p2: s3.p2,
-    //         xAbove: s3.xAt(sweepY + epsilon),
-    //         xBelow: s3.xAt(sweepY - epsilon)
-    //     });
-
-    //     console.log("S10:", {
-    //         p1: s10.p1,
-    //         p2: s10.p2,
-    //         xAbove: s10.xAt(sweepY + epsilon),
-    //         xBelow: s10.xAt(sweepY - epsilon)
-    //     });
-    // }
-    //end debug lines
-
-
-
-    switch (event.type) {
+      switch (event.type) {
 
         case "insert":
             //debugLog("ABOUT TO INSERT:", event.segments[0].id);
@@ -653,7 +610,7 @@ function processEvent(event, refresh = true) {
                     );
                 }
             }
-            sweepTree.printInOrder(sweepTree.root) //BST root = sweepTree.root
+            //sweepTree.printInOrder(sweepTree.root) //BST root = sweepTree.root
             break;
 
         case "delete":
@@ -674,7 +631,7 @@ function processEvent(event, refresh = true) {
                     );
                 }
             }
-            sweepTree.printInOrder(sweepTree.root) //BST root = sweepTree.root
+            //sweepTree.printInOrder(sweepTree.root) //BST root = sweepTree.root
             break;
 
 
@@ -903,7 +860,7 @@ function processEvent(event, refresh = true) {
             }
             //end debug lines
 
-            sweepTree.printInOrder(sweepTree.root) //BST root = sweepTree.root
+            //sweepTree.printInOrder(sweepTree.root) //BST root = sweepTree.root
         }
 
     }
@@ -924,6 +881,7 @@ function processEvent(event, refresh = true) {
 
 
     function addIntersectionEvents(newIntersections, currentEvent) {
+        let eventAdded = false;
         for (let item of newIntersections) {
 
             let key = pairKey(item.segment1, item.segment2);
@@ -934,8 +892,6 @@ function processEvent(event, refresh = true) {
             }
 
             scheduledIntersections.add(key);
-
-
 
             intersections.push(item);
 
@@ -978,14 +934,13 @@ function processEvent(event, refresh = true) {
                         item.x
                     )
                 );
-
+                eventAdded = true;
                 debugLog(
                     `Intersection event added: S${item.segment1.id}, S${item.segment2.id} (${item.x}, ${item.y})`
                 );
             }
         }
-
-        sortEvents();
+if (eventAdded) sortEvents();
     }
 
     // code before debug on 14 Nov AM
@@ -1073,6 +1028,7 @@ function processEvent(event, refresh = true) {
 
 
 
+
 function listSegs(segments) {
     let str = "";
     for (let i = 0; i < segments.length; ++i) {
@@ -1086,7 +1042,7 @@ function listSegs(segments) {
             + " &nbsp;&nbsp;&nbsp; "
             + segments[i].directionVector;
         ;
-        appendHTML("Div2", str);
+        appendHTML("Div1", str);
     }
 }
 
@@ -1156,11 +1112,13 @@ function runASAP() {
 }
 
 function runASAPChunk() {
-    let batchSize = 100000;
+    let batchSize = 100000; //this number is events, not segments. It reduces the progress bar update to near zero
     let count = 0;
     let nextEvent;
 
     // Process a small batch of events.
+    // console.log('=========== START PROCESSING  ===========');
+    // console.log('Off and running to processEvents')
     let beginTime = performance.now();
     while (
         count < batchSize &&
@@ -1208,3 +1166,27 @@ function runASAPChunk() {
         redraw();
     }
 }
+
+function updateProgress() {
+  //let total = events.length;
+  let total = estimated;
+  //let completed = processedEvents.size;
+
+  let maxDist = Math.sqrt((minY - maxY) ** 2);
+
+  let sweepYdist = Math.sqrt((sweepY - minY) ** 2);
+  let completed = sweepYdist;
+  percent = (100 / maxDist) * (maxDist - sweepYdist);
+  //debugLog(`sweepYdist: ${sweepYdist.toFixed(1)}  maxDist: ${maxDist} % =${percent}`);
+
+
+
+  //let percent = total === 0 ? 0 : (completed / total) * 100;
+
+  document.getElementById("eventProgress").value = percent;
+  document.getElementById("eventProgress").max = 100;
+
+  document.getElementById("progressText").textContent =
+    `${completed.toFixed(0)} / ${total} possible (${percent.toFixed(1)}%)`;
+}
+

@@ -1,5 +1,6 @@
 <ul>
 <li>Limit the number of segments that can emanate from a single point. It may be that I need only be concerned about segments going south. Idea is to catch the error before the user even has the ability to start the processEvent()</li>
+<LI> Fix the Progress Bar.</li>
 <li>✅Add a maximum segment length button</li>
 <li>✅Random reStart needs to correctly display the Intersections Detected.
 <li>✅Remove the sweepY slider and its input box. This is tedious so be careful.</li>

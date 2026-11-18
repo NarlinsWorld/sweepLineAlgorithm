@@ -366,28 +366,7 @@ function recordStdIntersection(x, y, segments) {
   }
 }
 
-function updateProgress() {
-  //let total = events.length;
-  let total = estimated;
-  //let completed = processedEvents.size;
 
-  let maxDist = Math.sqrt((minY - maxY) ** 2);
-
-  let sweepYdist = Math.sqrt((sweepY - minY) ** 2);
-  let completed = sweepYdist;
-  percent = (100 / maxDist) * (maxDist - sweepYdist);
-  //debugLog(`sweepYdist: ${sweepYdist.toFixed(1)}  maxDist: ${maxDist} % =${percent}`);
-
-
-
-  //let percent = total === 0 ? 0 : (completed / total) * 100;
-
-  document.getElementById("eventProgress").value = percent;
-  document.getElementById("eventProgress").max = 100;
-
-  document.getElementById("progressText").textContent =
-    `${completed.toFixed(0)} / ${total} possible (${percent.toFixed(1)}%)`;
-}
 
 function debugLog(...args) {
   if (debug) {
