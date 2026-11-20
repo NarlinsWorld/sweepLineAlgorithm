@@ -63,13 +63,15 @@ function setup() {
     canvas.parent("cvs");
     animate = false;
     noLoop();
-    repeatableSetUp();
-
+    repeatableSetUp(false); //false means get new segments
 }
+
 // called by repeatableSetUp() and by runASAPChunk
-function resetVariables() {
+function resetVariables(reuseSegments) {
     intersections = [];
-    segments = [];
+    if (!reuseSegments) {
+        segments = []; // reuseSegments=No means get new segments
+    }
     scheduledIntersections = new Set();
     sweepTree = null; // initialize varaible for Binary Search Tree
     // sweepY = parseInt(document.getElementById("sweep").value);
@@ -89,24 +91,34 @@ function resetVariables() {
 
     //clear the html Box.
     document.getElementById('Div2').innerHTML = "";
+    if (!reuseSegments) {
+        if (doRandom) {
+            createRandomSegments(segNumber, maxLen);
+            shared = sharedPoints(segments);
+        } else {
+            createSegmentsStatic(segmentsArray); //hand crafted testing segments
+            shared = sharedPoints(segments);
+        }
 
-    if (doRandom) {
-        createRandomSegments(segNumber, maxLen);
     } else {
-        createSegmentsStatic(segmentsArray); //hand crafted testing segments
+        makeEvents()
+        sortEvents();
+        shared = sharedPoints(segments);
     }
-    shared = sharedPoints(segments);
+
+
 } //End resetVariables
 
-function repeatableSetUp() {
+function repeatableSetUp(reuseSegments) {
+    console.log(`repeabableSetUp reuseSegments is ${reuseSegments}`);
     //use the standard method to find intersections
     //estimated = countIntersections(); //it counts only.
     // time and average the performance
     let summ = 0;
     let iter = 100;
 
+    resetVariables(reuseSegments);  //do not time this
     for (let i = 0; i < iter; i++) {
-        resetVariables();  //do not time this
         let beginStd = performance.now();
 
         findStandardIntersections() // <= indirectly fills the Map stdIntersections
@@ -1096,35 +1108,44 @@ function stopAnimation() {
     noLoop();
 }
 
-// function runASAP() {
-//     if (animate) return;
 
-//     let nextEvent;
-
-//     while ((nextEvent = events.find(
-//         e => !processedEvents.has(e)
-//     ))) {
-//         processedEvents.add(nextEvent);
-//         processEvent(nextEvent);
-//     }
-
-//     redraw();
-//     document.getElementById('intersectionList').click();
-//}
-
-function runASAP() {
+function runASAP() {//true means a reRun and false means using fresh segments
     if (animate) return;
+    let avgTime = [];
     processedEvents.clear();
     initialEventCount = events.length;
     //lets do a few throwaways before starting
+    // for (let i = 0; i < 10; i++) {
+    //     //1st arg is number of repeats
+    //     //2nd arg is T/F to keep the runs(T) or ignore them (F)
+    //     // 
+    //      runASAPChunk(5, keep = false); //the number argument is the number of repeats to get average timing
+    // }
+    //keep running until consistency
     for (let i = 0; i < 10; i++) {
-        runASAPChunk(5, keep=false); //the argument is the number of repeats to get average timing
+        groupInstanceTime = runASAPChunk(33, keep = true);
+        avgTime.push(groupInstanceTime);
+        if (i >= 2) {
+            if (areWithin3Percent(avgTime[i - 1], avgTime[i])) break;
+            console.log(`${i}. wait on consistent timing `)
+        }
     }
-    //now for the real thing.
-    runASAPChunk(100, keep=true);
+    console.log(`last two times: ${avgTime[avgTime.length - 2]}, ${avgTime[avgTime.length - 1]}`);
+    //document.getElementById("processASAP").style.backgroundColor = "white";
+    //document.getElementById("processASAP").style.color = "black";
+    return (avgTime[avgTime.length - 1]);
+
+    function areWithin3Percent(a, b) {
+        // Avoid division by zero
+        if (a === 0 && b === 0) return true;
+
+        // Calculate relative percentage difference
+        const diff = Math.abs(a - b) / ((a + b) / 2);
+        return diff <= 0.03; // 3% threshold
+    }
 }
 
-function runASAPChunk(repeats,keep) { //current chunk size is 100000 events.
+function runASAPChunk(repeats, keep) { //current chunk size is 100000 events.
 
 
     // console.log('=========== START PROCESSING  ===========');
@@ -1132,12 +1153,17 @@ function runASAPChunk(repeats,keep) { //current chunk size is 100000 events.
 
     let sum = 0;
     //let repeats = 100;
+
     for (let i = 0; i < repeats; i++) {
         //Do not time
-        resetVariables(); //do not time
+
+        resetVariables(true); //do not time. Leave the segments alone always.
+        // makeEvents();
+        // sortEvents();
         batchSize = 100000; //this number is events, not segments. It reduces the progress bar update to near zero
         let count = 0;
         let nextEvent;
+        ;
         for (const [key, segs] of shared) {
             const [x, y] = key.split(",").map(Number); //assigns the event point to x and y as numbers
             events.push(new SweepEvent(y, "intersection", segs, x));
@@ -1166,7 +1192,7 @@ function runASAPChunk(repeats,keep) { //current chunk size is 100000 events.
         let endTime = performance.now();
         sum = (endTime - beginTime) + sum;
     }
-    if (keep) console.log(`sweepLine process Time = ${sum / repeats}ms`);
+    //if (keep) console.log(`sweepLine process Time = ${sum / repeats}ms`);
     // Update the display.
     updateProgress();
     //redraw();
@@ -1202,6 +1228,7 @@ function runASAPChunk(repeats,keep) { //current chunk size is 100000 events.
         document.getElementById('intersectionList').click();
         redraw();
     }
+    return (sum / repeats); //returning group instance average time.
 }
 
 function updateProgress() {

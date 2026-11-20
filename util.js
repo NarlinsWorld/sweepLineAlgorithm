@@ -201,6 +201,22 @@ document.getElementById("maxLen").addEventListener("change", () => {
   maxLen = Number(document.getElementById("maxLen").value);
 })
 
+//processASAP button handler
+document.getElementById("processASAP").addEventListener("click", () => {
+  document.getElementById("processASAP").style.backgroundColor = "purple";
+  document.getElementById("processASAP").style.color = "white";
+
+  let avgTime = runASAP();
+  console.log(`Final sweepLine process Time = ${avgTime}`);
+});
+
+//reRun button handler
+document.getElementById("reRun").addEventListener("click", () => {
+  repeatableSetUp(true);
+  let avgTime = runASAP(); //true means to reuse the same segments
+  console.log(`reRun of processASAP. Time = ${avgTime}`);
+});
+
 function randomIntFromInterval(min, max) {
   // min and max included
   return Math.floor(Math.random() * (max - min + 1) + min);
