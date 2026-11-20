@@ -8,8 +8,8 @@ class Segment {
 
     draw() {
         push();
-        stroke("gray");
-        strokeWeight(.5);
+        stroke("black");
+        strokeWeight(.75);
         line(this.p1.x, this.p1.y, this.p2.x, this.p2.y);
         pop();
     }

@@ -59,15 +59,15 @@ render1();  // startup: green, "Random"
 
 //================================================================
 function setup() {
-    let canvas = createCanvas(1600, 400);
+    let canvas = createCanvas(400, 400);
     canvas.parent("cvs");
     animate = false;
     noLoop();
     repeatableSetUp();
 
 }
-
-function repeatableSetUp() {
+// called by repeatableSetUp() and by runASAPChunk
+function resetVariables() {
     intersections = [];
     segments = [];
     scheduledIntersections = new Set();
@@ -95,24 +95,30 @@ function repeatableSetUp() {
     } else {
         createSegmentsStatic(segmentsArray); //hand crafted testing segments
     }
-
-
-    //debugLog(segments);
-
     shared = sharedPoints(segments);
+} //End resetVariables
 
+function repeatableSetUp() {
     //use the standard method to find intersections
     //estimated = countIntersections(); //it counts only.
-    let beginStd = performance.now();
+    // time and average the performance
+    let summ = 0;
+    let iter = 100;
 
-    findStandardIntersections()
-    // Include intersections at shared endpoints
-    for (const [key, segs] of shared) {
-        const [x, y] = key.split(",").map(Number);
-        recordStdIntersection(x, y, segs);
+    for (let i = 0; i < iter; i++) {
+        resetVariables();  //do not time this
+        let beginStd = performance.now();
+
+        findStandardIntersections() // <= indirectly fills the Map stdIntersections
+        // Include intersections at shared endpoints
+        for (const [key, segs] of shared) {
+            const [x, y] = key.split(",").map(Number);
+            recordStdIntersection(x, y, segs);
+        }
+        let endStd = performance.now();
+        summ = (endStd - beginStd) + summ;
     }
-    let endStd = performance.now();
-    console.log(`Time to get std intersections = ${endStd - beginStd}ms`);
+    console.log(`Time to get std intersections = ${summ / iter}ms`);
     estimated = stdIntersections.size;
     //console.log(stdIntersections)
     document.getElementById("estimate").innerHTML = "Intersections Estimated = " + estimated;
@@ -141,6 +147,8 @@ function repeatableSetUp() {
     //debugLog('sweepY = ', sweepY);
 } //END repeatableSetUp
 //=============================================================================
+
+
 
 function printSharedPoints(shared) {
     for (const [key, segs] of shared) {
@@ -387,8 +395,8 @@ function createSegmentsStatic(segArr) {
     makeEvents();
     //console.log('minY = ', minY, ' maxY = ', maxY); //helps calculate the progress bar
     sortEvents();
-
 }
+
 /* //original createRandomSegments(n)
 function createRandomSegments(n) {
     segments = [];
@@ -584,7 +592,7 @@ function processEvent(event, refresh = true) {
     let p; //predecessor
     let s; //successor
 
-      switch (event.type) {
+    switch (event.type) {
 
         case "insert":
             //debugLog("ABOUT TO INSERT:", event.segments[0].id);
@@ -780,8 +788,8 @@ function processEvent(event, refresh = true) {
     }
 
 
-    checkSharedPointGroup(event); //are we at end of a shared Group in the events queue?
-
+    //checkSharedPointGroup(event); //are we at end of a shared Group in the events queue?
+    //This function is not called!  I think it is not needed.
     function checkSharedPointGroup(event) {
 
         const index = events.indexOf(event);
@@ -863,7 +871,7 @@ function processEvent(event, refresh = true) {
             //sweepTree.printInOrder(sweepTree.root) //BST root = sweepTree.root
         }
 
-    }
+    } //End of checkSharedPointGroup
 
 
     //redraw();
@@ -940,7 +948,7 @@ function processEvent(event, refresh = true) {
                 );
             }
         }
-if (eventAdded) sortEvents();
+        if (eventAdded) sortEvents();
     }
 
     // code before debug on 14 Nov AM
@@ -1108,28 +1116,57 @@ function runASAP() {
     if (animate) return;
     processedEvents.clear();
     initialEventCount = events.length;
-    runASAPChunk();
+    //lets do a few throwaways before starting
+    for (let i = 0; i < 10; i++) {
+        runASAPChunk(5, keep=false); //the argument is the number of repeats to get average timing
+    }
+    //now for the real thing.
+    runASAPChunk(100, keep=true);
 }
 
-function runASAPChunk() {
-    let batchSize = 100000; //this number is events, not segments. It reduces the progress bar update to near zero
-    let count = 0;
-    let nextEvent;
+function runASAPChunk(repeats,keep) { //current chunk size is 100000 events.
 
-    // Process a small batch of events.
+
     // console.log('=========== START PROCESSING  ===========');
     // console.log('Off and running to processEvents')
-    let beginTime = performance.now();
-    while (
-        count < batchSize &&
-        (nextEvent = events.find(e => !processedEvents.has(e)))
-    ) {
-        processedEvents.add(nextEvent);
-        processEvent(nextEvent, false);
-        count++;
+
+    let sum = 0;
+    //let repeats = 100;
+    for (let i = 0; i < repeats; i++) {
+        //Do not time
+        resetVariables(); //do not time
+        batchSize = 100000; //this number is events, not segments. It reduces the progress bar update to near zero
+        let count = 0;
+        let nextEvent;
+        for (const [key, segs] of shared) {
+            const [x, y] = key.split(",").map(Number); //assigns the event point to x and y as numbers
+            events.push(new SweepEvent(y, "intersection", segs, x));
+            recordUniqueIntersection(x, y, segs);
+        }
+        sortEvents();
+        // end of do not time section
+
+        recordSharedEndpointIntersections(shared);
+        if (shared.size > 0) {
+            printSharedPoints(shared);       //for use in code development
+            //debugLog('shared', shared);   //for use in code development
+        }
+
+        sweepTree = new BST();
+
+        let beginTime = performance.now();
+        while (
+            count < batchSize &&
+            (nextEvent = events.find(e => !processedEvents.has(e)))
+        ) {
+            processedEvents.add(nextEvent);
+            processEvent(nextEvent, false);
+            count++;
+        }
+        let endTime = performance.now();
+        sum = (endTime - beginTime) + sum;
     }
-    let endTime = performance.now();
-    console.log(`sweepLine process Time = ${endTime - beginTime}ms`)
+    if (keep) console.log(`sweepLine process Time = ${sum / repeats}ms`);
     // Update the display.
     updateProgress();
     //redraw();
@@ -1148,19 +1185,19 @@ function runASAPChunk() {
             processedTypes[e.type] = (processedTypes[e.type] || 0) + 1;
         }
 
-        console.log("========== RUN COMPLETE ==========");
-        console.log("Segments:", segments.length);
-        console.log("Initial events:", initialEventCount);
-        console.log("Final events:", events.length);
-        console.log("Events added:", events.length - initialEventCount);
-        console.log("Events processed:", processedEvents.size);
-        console.log("Events still pending:", pending.length);
-        console.log("Processed event types:", processedTypes);
-        console.log("Estimated intersections:", estimated);
-        console.log("Detected intersections:", uniqueIntersections.size);
-        console.log("Difference:", estimated - uniqueIntersections.size);
-        console.log("==================================");
-
+        /*    console.log("========== RUN COMPLETE ==========");
+            console.log("Segments:", segments.length);
+            console.log("Initial events:", initialEventCount);
+            console.log("Final events:", events.length);
+            console.log("Events added:", events.length - initialEventCount);
+            console.log("Events processed:", processedEvents.size);
+            console.log("Events still pending:", pending.length);
+            console.log("Processed event types:", processedTypes);
+            console.log("Estimated intersections:", estimated);
+            console.log("Detected intersections:", uniqueIntersections.size);
+            console.log("Difference:", estimated - uniqueIntersections.size);
+            console.log("==================================");
+    */
         // All events processed. Display the intersection list.
         document.getElementById('intersectionList').click();
         redraw();
@@ -1168,25 +1205,25 @@ function runASAPChunk() {
 }
 
 function updateProgress() {
-  //let total = events.length;
-  let total = estimated;
-  //let completed = processedEvents.size;
+    //let total = events.length;
+    let total = estimated;
+    //let completed = processedEvents.size;
 
-  let maxDist = Math.sqrt((minY - maxY) ** 2);
+    let maxDist = Math.sqrt((minY - maxY) ** 2);
 
-  let sweepYdist = Math.sqrt((sweepY - minY) ** 2);
-  let completed = sweepYdist;
-  percent = (100 / maxDist) * (maxDist - sweepYdist);
-  //debugLog(`sweepYdist: ${sweepYdist.toFixed(1)}  maxDist: ${maxDist} % =${percent}`);
+    let sweepYdist = Math.sqrt((sweepY - minY) ** 2);
+    let completed = sweepYdist;
+    percent = (100 / maxDist) * (maxDist - sweepYdist);
+    //debugLog(`sweepYdist: ${sweepYdist.toFixed(1)}  maxDist: ${maxDist} % =${percent}`);
 
 
 
-  //let percent = total === 0 ? 0 : (completed / total) * 100;
+    //let percent = total === 0 ? 0 : (completed / total) * 100;
 
-  document.getElementById("eventProgress").value = percent;
-  document.getElementById("eventProgress").max = 100;
+    document.getElementById("eventProgress").value = percent;
+    document.getElementById("eventProgress").max = 100;
 
-  document.getElementById("progressText").textContent =
-    `${completed.toFixed(0)} / ${total} possible (${percent.toFixed(1)}%)`;
+    document.getElementById("progressText").textContent =
+        `${completed.toFixed(0)} / ${total} possible (${percent.toFixed(1)}%)`;
 }
 
