@@ -7,7 +7,8 @@ let segments = [];
 let scheduledIntersections = new Set();
 let sweepTree; // initialize varaible for Binary Search Tree
 // let sweepY = parseInt(document.getElementById("sweep").value);
-let sweepY = 200;
+let ym =Number(document.getElementById("segRange").value); //height to start sweepY
+let sweepY = ym;
 let displaySweepY = sweepY;
 let animate = false; //who knows. maybe someday
 let events = []; // <= global
@@ -75,7 +76,7 @@ function resetVariables(reuseSegments) {
     scheduledIntersections = new Set();
     sweepTree = null; // initialize varaible for Binary Search Tree
     // sweepY = parseInt(document.getElementById("sweep").value);
-    sweepY = 200;
+    sweepY = ym;
     displaySweepY = sweepY;
     animate = false; //who knows. maybe someday
     events = []; // <= global
@@ -93,7 +94,9 @@ function resetVariables(reuseSegments) {
     document.getElementById('Div2').innerHTML = "";
     if (!reuseSegments) {
         if (doRandom) {
+            console.log(`Begin Random Segment Generation`)
             createRandomSegments(segNumber, maxLen);
+            console.log(`End Random Segment Generation`)
             shared = sharedPoints(segments);
         } else {
             createSegmentsStatic(segmentsArray); //hand crafted testing segments
@@ -110,7 +113,7 @@ function resetVariables(reuseSegments) {
 } //End resetVariables
 
 function repeatableSetUp(reuseSegments) {
-    console.log(`repeabableSetUp reuseSegments is ${reuseSegments}`);
+    //console.log(`repeabableSetUp reuseSegments is ${reuseSegments}`);
     //use the standard method to find intersections
     //estimated = countIntersections(); //it counts only.
     // time and average the performance
@@ -155,7 +158,7 @@ function repeatableSetUp(reuseSegments) {
 
     sweepTree = new BST();
 
-    redraw();  //draw the newly initialized data
+   // redraw();  //draw the newly initialized data
     //debugLog('sweepY = ', sweepY);
 } //END repeatableSetUp
 //=============================================================================
@@ -457,15 +460,16 @@ function createRandomSegments(n, maxLen = 400) {
     const H = maxLen / 2;
 
     for (let i = 0; i < n; i++) {
-        const x1 = randomIntFromInterval(-180, 180);
-        const y1 = randomIntFromInterval(-180, 180);
+       
+        const x1 = randomIntFromInterval(-ym, ym); //ym is a ymax global and is the beginning of sweepY too.
+        const y1 = randomIntFromInterval(-ym, ym);
 
         // Clip the sampling box to the domain, THEN sample uniformly inside it.
         // This keeps p2 uniform in the valid region — no pile-up at the walls.
-        const xLo = Math.max(-180, x1 - H);
-        const xHi = Math.min(180, x1 + H);
-        const yLo = Math.max(-180, y1 - H);
-        const yHi = Math.min(180, y1 + H);
+        const xLo = Math.max(-ym, x1 - H);
+        const xHi = Math.min(ym, x1 + H);
+        const yLo = Math.max(-ym, y1 - H);
+        const yHi = Math.min(ym, y1 + H);
 
         const x2 = randomIntFromInterval(xLo, xHi);
         const y2 = randomIntFromInterval(yLo, yHi);
@@ -1109,126 +1113,73 @@ function stopAnimation() {
 }
 
 
-function runASAP() {//true means a reRun and false means using fresh segments
+async function runASAP() {
     if (animate) return;
     let avgTime = [];
     processedEvents.clear();
     initialEventCount = events.length;
-    //lets do a few throwaways before starting
-    // for (let i = 0; i < 10; i++) {
-    //     //1st arg is number of repeats
-    //     //2nd arg is T/F to keep the runs(T) or ignore them (F)
-    //     // 
-    //      runASAPChunk(5, keep = false); //the number argument is the number of repeats to get average timing
-    // }
+ 
     //keep running until consistency
     for (let i = 0; i < 10; i++) {
-        groupInstanceTime = runASAPChunk(33, keep = true);
+        groupInstanceTime = await runASAPChunk(33, keep = true);
         avgTime.push(groupInstanceTime);
-        if (i >= 2) {
-            if (areWithin3Percent(avgTime[i - 1], avgTime[i])) break;
-            console.log(`${i}. wait on consistent timing `)
-        }
+        if (i >= 3 && areWithin3Percent(avgTime[i - 1], avgTime[i])) break;       
     }
     console.log(`last two times: ${avgTime[avgTime.length - 2]}, ${avgTime[avgTime.length - 1]}`);
-    //document.getElementById("processASAP").style.backgroundColor = "white";
-    //document.getElementById("processASAP").style.color = "black";
+    
     return (avgTime[avgTime.length - 1]);
 
     function areWithin3Percent(a, b) {
         // Avoid division by zero
         if (a === 0 && b === 0) return true;
-
         // Calculate relative percentage difference
         const diff = Math.abs(a - b) / ((a + b) / 2);
         return diff <= 0.03; // 3% threshold
     }
 }
 
-function runASAPChunk(repeats, keep) { //current chunk size is 100000 events.
-
-
-    // console.log('=========== START PROCESSING  ===========');
-    // console.log('Off and running to processEvents')
-
+async function runASAPChunk(repeats, keep) {
     let sum = 0;
-    //let repeats = 100;
 
     for (let i = 0; i < repeats; i++) {
-        //Do not time
-
-        resetVariables(true); //do not time. Leave the segments alone always.
-        // makeEvents();
-        // sortEvents();
-        batchSize = 100000; //this number is events, not segments. It reduces the progress bar update to near zero
+        resetVariables(true);
+        batchSize = 100000;
         let count = 0;
         let nextEvent;
-        ;
+
         for (const [key, segs] of shared) {
-            const [x, y] = key.split(",").map(Number); //assigns the event point to x and y as numbers
+            const [x, y] = key.split(",").map(Number);
             events.push(new SweepEvent(y, "intersection", segs, x));
             recordUniqueIntersection(x, y, segs);
         }
         sortEvents();
-        // end of do not time section
-
         recordSharedEndpointIntersections(shared);
-        if (shared.size > 0) {
-            printSharedPoints(shared);       //for use in code development
-            //debugLog('shared', shared);   //for use in code development
-        }
 
         sweepTree = new BST();
 
-        let beginTime = performance.now();
-        while (
-            count < batchSize &&
-            (nextEvent = events.find(e => !processedEvents.has(e)))
-        ) {
+        const beginTime = performance.now();
+        while (count < batchSize && (nextEvent = events.find(e => !processedEvents.has(e)))) {
             processedEvents.add(nextEvent);
             processEvent(nextEvent, false);
             count++;
         }
-        let endTime = performance.now();
-        sum = (endTime - beginTime) + sum;
+        sum += performance.now() - beginTime;
+
+        // Yield to the UI between chunks so the browser can paint / stay responsive
+        await new Promise(r => setTimeout(r, 0));
     }
-    //if (keep) console.log(`sweepLine process Time = ${sum / repeats}ms`);
-    // Update the display.
+
     updateProgress();
-    //redraw();
 
-
-    // Are there more events?
+    // Keep draining in further chunk groups until everything is processed
     if (events.some(e => !processedEvents.has(e))) {
-        setTimeout(runASAPChunk, 0);
+        sum += await runASAPChunk(repeats, keep); // recurse and await
     } else {
-
-        // All events processed. Collect statistics.
-        const pending = events.filter(e => !processedEvents.has(e));
-
-        const processedTypes = {};
-        for (const e of processedEvents) {
-            processedTypes[e.type] = (processedTypes[e.type] || 0) + 1;
-        }
-
-        /*    console.log("========== RUN COMPLETE ==========");
-            console.log("Segments:", segments.length);
-            console.log("Initial events:", initialEventCount);
-            console.log("Final events:", events.length);
-            console.log("Events added:", events.length - initialEventCount);
-            console.log("Events processed:", processedEvents.size);
-            console.log("Events still pending:", pending.length);
-            console.log("Processed event types:", processedTypes);
-            console.log("Estimated intersections:", estimated);
-            console.log("Detected intersections:", uniqueIntersections.size);
-            console.log("Difference:", estimated - uniqueIntersections.size);
-            console.log("==================================");
-    */
-        // All events processed. Display the intersection list.
         document.getElementById('intersectionList').click();
         redraw();
     }
-    return (sum / repeats); //returning group instance average time.
+
+    return sum / repeats;
 }
 
 function updateProgress() {

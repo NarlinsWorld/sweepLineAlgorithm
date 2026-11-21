@@ -155,6 +155,15 @@ function sortEvents() {
   );
 }
 
+//segment Range button handler
+//Currently an n x n square. This determines the square size used to randomly assign segments.
+//It is also the ymax and where sweepY initialized.
+let segRange = document.getElementById("segRange");
+segRange.addEventListener("change", () => { //it is an input box
+  ym = Number(segRange.value);
+});
+
+
 // document.getElementById("processEvent").addEventListener("click", () => {
 //   const nextEvent = events.find(e => !processedEvents.has(e));
 //   if (!nextEvent) return;
@@ -202,20 +211,47 @@ document.getElementById("maxLen").addEventListener("change", () => {
 })
 
 //processASAP button handler
-document.getElementById("processASAP").addEventListener("click", () => {
-  document.getElementById("processASAP").style.backgroundColor = "purple";
-  document.getElementById("processASAP").style.color = "white";
+const pbtn = document.getElementById("processASAP");
+pbtn.addEventListener("click", async () => {
+  pbtn.style.backgroundColor = "purple";
+  pbtn.style.color = "white";
+  pbtn.textContent = "Busy WAIT";
 
-  let avgTime = runASAP();
-  console.log(`Final sweepLine process Time = ${avgTime}`);
+  // Yield twice so the browser actually paints purple before the sync work blocks
+  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+  try {
+    const avgTime = await runASAP();
+    console.log(`Final sweepLine process Time = ${avgTime}`);
+  } finally {
+    pbtn.style.backgroundColor = "#f0f0f0";
+    pbtn.style.color = "black";
+    pbtn.textContent = "ProcessASAP";
+  }
 });
 
 //reRun button handler
-document.getElementById("reRun").addEventListener("click", () => {
+const rbtn = document.getElementById("reRun");
+rbtn.addEventListener("click", async () => {
+  rbtn.style.backgroundColor = "red";
+  rbtn.style.color = "white";
+  rbtn.textContent = "Busy WAIT";
+
+  // Yield twice so the browser actually paints purple before the sync work blocks
+  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
   repeatableSetUp(true);
-  let avgTime = runASAP(); //true means to reuse the same segments
-  console.log(`reRun of processASAP. Time = ${avgTime}`);
+
+  try {
+    const avgTime = await runASAP();
+    console.log(`Final sweepLine process Time = ${avgTime}`);
+  } finally {
+    rbtn.style.backgroundColor = "#f0f0f0";
+    rbtn.style.color = "black";
+    rbtn.textContent = "reRun";
+  }
 });
+
+
 
 function randomIntFromInterval(min, max) {
   // min and max included
