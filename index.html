@@ -81,7 +81,8 @@ for (let i = 0; i < g.length; i++) {
     </p>
 
 
-    <h3>How the algorithm works</h3>
+    <h3>How the algorithm works </h3>
+  
     <p>
       We have to know the order of segments crossing the
       sweep Line from left to right. A way to do that is
@@ -366,7 +367,8 @@ function pairKey(s1, s2) {
       <li>An intersection event includes more than one segment, usually two, but could be any number greater than one.
         So we have a line of code:
         <pre><code>
-let activeSegments = iarr.filter(segment => orderedSegments.includes(segment));
+let activeSegments = iarr.filter(segment => 
+orderedSegments.includes(segment));
         </code></pre>
       </li>
       <p>
@@ -415,16 +417,307 @@ let activeSegments = iarr.filter(segment => orderedSegments.includes(segment));
         likely, that can be a large number.
       </li>
       <li>We then test each of those segments for an intersection with our horizontal event. Fortunately,
-    testing to see if there is an intersection is quite a bit faster than finding that intersection.
+        testing to see if there is an intersection is quite a bit faster than finding that intersection.
       </li>
       <li>Of course if there is an intersection, then we find and record it.</li>
     </ul>
-    
+
     </p>
 
   </div> <!-- end div "most_stuff" -->
 
-  
+  <h3>Timing the Standard (naive) algorithm</h3>
+  <h4>TLDR; A summary is further down the page</h4>
+  I did some timing of the standard algorithm using performance.now() in javascript. It is a little
+  tricky to time code in javascript because it has garbage collection, which code cannot easily control
+  and it has jit compilation. Together those can result in incorrectly added time. Also, I only wanted
+  to time that aspect of the code that is actually finding the intersections and I wanted to be sure that
+  I was getting a correct answer! There are two problems with the naive intersection method, that are
+  related to the geometry.
+  <ol>
+    <li>When multiple segments meet at a single point, the naive method counts a new intersection for
+      every combination of segments that intersect at that point. Suppose segments A, B, and C all intersect
+      at P. Then the naive method sees an intersection for AB, AC, and BC, counting three intesections
+      when in fact there was only one. I collect these into a single intersection and include the work in
+      the timing. It is O(n²). My function "findStandardIntersections" uses a Map with a key to circumvent double
+      counting.
+    </li>
+    <li> The naive intersection method misses intersections that are end to end and also colinear. This
+      is because the method being used relies on a determinant to decide if segement intersect, and colinear
+      segments return a zero determinant. That cannot be used in the intersect code without a divide by zero
+      therefore, we skip over colinear segments and colinear segment end to end intesections are missed. We
+      can add them back, since there is a function to find collinear segments. This operation is timed along
+      with the finding of intersections.
+    </li>
+  </ol>
+  Here is the base code. I do not time how long it takes to
+  generate the segments, nor any pre-processing of those segments. I just want to know, given the
+  segments, how long does it take to find their intersections. Each time function resetVariables is
+  invoked, I calculate anew how many points share endpoints with other segments.<br>
+  This is the timing Loop.
+  <pre><code>
+resetVariables(reuseSegments);  // < = do not time this data reset
+    for (let i = 0; i < iter; i++) {
+        <b>let beginStd = performance.now();</b>
+        findStandardIntersections();
+        // Include intersections at shared endpoints
+        for (const [key, segs] of shared) {
+            const [x, y] = key.split(",").map(Number);
+            recordStdIntersection(x, y, segs);
+        }
+        <b>let endStd = performance.now();</b>
+        summ = (endStd - beginStd) + summ;
+    }
+    console.log(`Time to get std intersections = ${summ / iter}ms`);
+    </code></pre>
+
+  and the code for resetVariables()
+  <pre><code>
+      // called by repeatableSetUp() and by runASAPChunk
+function resetVariables(reuseSegments) { // <= indirectly fills the Map 
+  //stdIntersections
+    intersections = [];
+    if (!reuseSegments) {
+        segments = []; // reuseSegments=No means get new segments
+    }
+    scheduledIntersections = new Set();
+    sweepTree = null; // initialize varaible for Binary Search Tree
+    // sweepY = parseInt(document.getElementById("sweep").value);
+    sweepY = ym;
+    displaySweepY = sweepY;
+    animate = false; //who knows. maybe someday
+    events = []; // <= global
+    recordedIntersectionPairs.clear();
+    shared = null;
+    uniqueIntersections.clear();
+    segNumber = document.getElementById("segNumber").value;
+    processedEvents = new Set();
+    processedEventCount = 0;
+    //eventProgress = 0;
+    intersectionCnt = 0;
+    stdIntersections.clear(); //clears this Map?
+
+    //clear the html Box.
+    document.getElementById('Div2').innerHTML = "";
+    if (!reuseSegments) {
+        if (doRandom) {
+            console.log(`Begin Random Segment Generation`)
+            createRandomSegments(segNumber, maxLen);
+            console.log(`End Random Segment Generation`)
+            shared = sharedPoints(segments);
+        } else {
+          //hand crafted testing segments
+            createSegmentsStatic(segmentsArray); 
+            shared = sharedPoints(segments);
+        }
+
+    } else {
+        makeEvents()
+        sortEvents();
+        shared = sharedPoints(segments);
+    }
+
+
+} //End resetVariables
+    </code></pre>
+
+  Next I will show the function "findStandardIntersections()", because it does a bit
+  more than just the mathematics.
+  <pre><code>
+
+  //called by function repeatableSetup
+function findStandardIntersections() {
+  let cnt = 0;
+  let ix, iy;
+  for (let i = 0; i < segments.length; i++) {
+    for (let j = i + 1; j < segments.length; j++) {
+      const si = segments[i];
+      const sj = segments[j];
+      if (hasIntersect(si.p1.x, si.p1.y, si.p2.x, si.p2.y,
+        sj.p1.x, sj.p1.y, sj.p2.x, sj.p2.y)) {
+        [ix, iy] = intersectionPoint(si.p1.x, si.p1.y, si.p2.x, si.p2.y,
+          sj.p1.x, sj.p1.y, sj.p2.x, sj.p2.y);
+        <b>recordStdIntersection(ix, iy, [si, sj]);</b>   // <-- THIS creates 
+        //a Map & prevents multiple counting
+        cnt++;
+      }
+    }
+  }
+  return cnt;
+}
+    </code></pre>
+  These next three functions run the mathematics for finding an intersection,
+  when the intersections exists and the segments are not colinear.
+  <pre><code>
+function hasIntersect(p1x, p1y, p2x, p2y, p3x, p3y, p4x, p4y) {
+  //indicate if the lines intersect
+  let ans = false;
+  let dM = det3x3(1, p1x, p1y, 1, p2x, p2y, 1, p3x, p3y);
+  let dN = det3x3(1, p1x, p1y, 1, p2x, p2y, 1, p4x, p4y);
+  let dO = det3x3(1, p3x, p3y, 1, p4x, p4y, 1, p1x, p1y);
+  let dP = det3x3(1, p3x, p3y, 1, p4x, p4y, 1, p2x, p2y);
+  if (Math.sign(dM) != Math.sign(dN) && Math.sign(dO) != Math.sign(dP)) 
+  { ans = true; }
+  return ans;
+}
+
+function det3x3(a, b, c, d, e, f, g, h, i) {
+  return a * (e * i - f * h) - b * (d * i - f * g) + c * (d * h - e * g);
+}
+
+function intersectionPoint(P1x, P1y, P2x, P2y, Q1x, Q1y, Q2x, Q2y) {
+  let Px = P1x;
+  let Py = P1y;
+  let Qx = Q1x;
+  let Qy = Q1y;
+  let ux = P2x - P1x;
+  let uy = P2y - P1y;
+  let vx = Q2x - Q1x;
+  let vy = Q2y - Q1y;
+
+  let num = (Px - Qx) * -uy + (Py - Qy) * ux;
+  let den = vx * -uy + vy * ux;
+  let x = Qx + (num / den) * vx;
+  let y = Qy + (num / den) * vy;
+  return [x, y];
+}
+  </code></pre>
+
+  <h2>Summary for the Naive Method getting correct intersection counts</h2>
+  The function recordStdIntersection(); handles problem<br> <b>#1 (over counts of
+  multi-segment intersections)</b> directly, while problem<br> <b>#2 (missing counts
+  of colinears)</b> is handled by the surrounding code that calls it. It is
+  the combination of these pieces that accomplishes both.
+
+  <h3>Preventing multiple counts at the same point</h3>
+
+    Suppose A, B, and C all meet at point P. The naive intersection routine
+    discovers:
+    <ul>
+      <li> A–B at P</li>
+      <li> A–C at P</li>
+      <li> B–C at P </li>
+    </ul>
+    Each pair calls: recordStdIntersection(x, y, [si, sj]);<br>
+    The function then rounds the coordinates:
+
+    <pre><code>
+  const rx = roundCoord(x);
+  const ry = roundCoord(y);
+  const key = `${rx}, ${ry}`;
+</code></pre>
+
+    That gives all three pairwise discoveries the same Map key, assuming their
+    calculated coordinates are sufficiently close to round to the same values.
+    The Map therefore has only one entry for point P. When the first pair arrives,
+    the function creates the entry:
+
+    <pre><code>
+    stdIntersections.set(key, {
+    x: rx,
+    y: ry,
+    segments: []
+    });
+    </code></pre>
+
+    When the next pair arrives at P, this test prevents another entry from being created:
+
+    <pre><code>
+    if (!stdIntersections.has(key)) {
+    </code></pre>
+
+    It simply retrieves the existing entry:
+    <pre><code>
+    const item = stdIntersections.get(key);
+  </code></pre>
+
+    But the function does something else important: it accumulates the participating segments.
+
+    <pre><code>
+    for (const segment of segments) {
+    if (!item.segments.some(s => s.id === segment.id)) {
+        item.segments.push(segment);
+      }
+    }
+   </code></pre>
+
+    Consequently, after A–B, A–C, and B–C are processed, the Map contains one intersection at P, with the segment list
+    `[A, B, C]`, rather than three separate intersection entries.<br>
+
+    The key idea is that we are counting <b>distinct intersection locations</b>, not intersecting segment pairs.
+
+    <h3> Restoring the collinear, end-to-end intersections</h3>
+
+    This is slightly different: functin recordStdIntersection() itself does not detect collinear segments or calculate their
+    intersection.<br>
+
+    The restoration occurs in the timing loop:
+
+   <pre><code>
+    for (const [key, segs] of shared) {
+       const [x, y] = key.split(",").map(Number);
+       recordStdIntersection(x, y, segs);
+    }
+  </code></pre>
+
+    Here's the sequence:
+<ol>
+    <li> function findStandardIntersections() tests segment pairs using function hasIntersect().</li>
+    <li> Collinear cases are not detected by that test, so they never reach recordStdIntersection() from the naive
+    pairwise loop.</li>
+    <li> The shared Map, constructed by sharedPoints(segments), separately identifies shared endpoint locations and
+    the segments participating at those locations.</li>
+    <li> The loop walks through "shared" and feeds those points and their segment lists into function recordStdIntersection().</li>
+    <li> Because it uses the same recording function, it merges these endpoint intersections into the same Map, avoiding
+    duplicate intersection locations.</li>
+</ol>
+    So the same recording mechanism is used for both sources of information.
+
+    <h4>The overall standard-intersection pipeline</h4>
+<ul>
+    <li><b>Pairwise testing — O(n²)</b> hasIntersect → intersectionPoint</li>
+
+    <li><b> recordStdIntersection()</b> Round coordinates · merge locations · deduplicate segment IDs</li>
+
+    <li><b>Shared endpoint pass</b> Restore endpoint intersections that pairwise testing misses</li>
+
+    <li><b>stdIntersections Map</b> One entry per unique intersection location, with participating segments</li>
+</ul>
+
+    <h3> What is actually included in the timing?</h3>
+
+    The timing boundaries are correctly placed to include both operations:
+
+    <pre><code>
+    let beginStd = performance.now();
+
+    findStandardIntersections();
+
+    // Include intersections at shared endpoints
+    for (const [key, segs] of shared) {
+    const [x, y] = key.split(",").map(Number);
+    recordStdIntersection(x, y, segs);
+    }
+
+    let endStd = performance.now();
+    </code></pre>
+
+    Therefore, the astandard-method benchmark times includes:
+<ul>
+    <li> Pairwise segment testing</li>
+    <li> Determinant calculations</li>
+    <li> Intersection coordinate calculations</li>
+    <li> Map lookups and creation</li>
+    <li> Coordinate rounding</li>
+    <li> Deduplication of intersection locations</li>
+    <li> Deduplication of participating segment IDs</li>
+    <li> Processing the `shared` endpoint Map and merging those points</li>
+</ul>
+    It does <b>not</b> include the construction of "shared" itself, because that occurs before the timing begins.
+ The actual unique intersection count is `stdIntersections.size`.
+
+    So function recordStdIntersection(); is the common bookkeeping mechanism
+    that unifies the results.
 </body>
 
 </html>

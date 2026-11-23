@@ -161,7 +161,7 @@ input.ch-width1 {
   /* Magic Number: Canvas (400px) + Gap (10px) + Any visual padding you want */
   margin-top: 410px; 
   
-  /* Keep your existing styles */
+  /* Keep the existing styles */
   width: 100%;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -175,7 +175,7 @@ input.ch-width1 {
   grid-row: 2;
   align-self: start;
   
-  /* Keep your existing styles */
+  /* Keep the existing styles */
   white-space: nowrap; 
   border: 1px solid red;
   padding: 10px;

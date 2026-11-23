@@ -384,7 +384,8 @@ function findStandardIntersections() {
         sj.p1.x, sj.p1.y, sj.p2.x, sj.p2.y)) {
         [ix, iy] = intersectionPoint(si.p1.x, si.p1.y, si.p2.x, si.p2.y,
           sj.p1.x, sj.p1.y, sj.p2.x, sj.p2.y);
-        recordStdIntersection(ix, iy, [si, sj]);   // <-- THIS
+        recordStdIntersection(ix, iy, [si, sj]);   // <-- THIS creates
+        //a Map to prevent multiple segments
         cnt++;
       }
     }

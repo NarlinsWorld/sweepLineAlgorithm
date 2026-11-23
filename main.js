@@ -68,7 +68,7 @@ function setup() {
 }
 
 // called by repeatableSetUp() and by runASAPChunk
-function resetVariables(reuseSegments) {
+function resetVariables(reuseSegments) { // <= indirectly fills the Map stdIntersections
     intersections = [];
     if (!reuseSegments) {
         segments = []; // reuseSegments=No means get new segments
@@ -112,7 +112,7 @@ function resetVariables(reuseSegments) {
 
 } //End resetVariables
 
-function repeatableSetUp(reuseSegments) {
+function repeatableSetUp(reuseSegments) { 
     //console.log(`repeabableSetUp reuseSegments is ${reuseSegments}`);
     //use the standard method to find intersections
     //estimated = countIntersections(); //it counts only.
@@ -120,11 +120,11 @@ function repeatableSetUp(reuseSegments) {
     let summ = 0;
     let iter = 100;
 
-    resetVariables(reuseSegments);  //do not time this
+    resetVariables(reuseSegments);  // <= do not time this data reset
     for (let i = 0; i < iter; i++) {
         let beginStd = performance.now();
 
-        findStandardIntersections() // <= indirectly fills the Map stdIntersections
+        findStandardIntersections();
         // Include intersections at shared endpoints
         for (const [key, segs] of shared) {
             const [x, y] = key.split(",").map(Number);
