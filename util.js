@@ -161,6 +161,10 @@ function sortEvents() {
 let segRange = document.getElementById("segRange");
 segRange.addEventListener("change", () => { //it is an input box
   ym = Number(segRange.value);
+  xmin = -ym;
+  xmax = ym;
+  ymin = -ym;
+  ymax = ym;
 });
 
 

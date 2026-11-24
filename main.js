@@ -7,7 +7,17 @@ let segments = [];
 let scheduledIntersections = new Set();
 let sweepTree; // initialize varaible for Binary Search Tree
 // let sweepY = parseInt(document.getElementById("sweep").value);
+
+//  ========= Scaling xy to the canvas  =============
+// Segment Range is currently square and scaled to fit in a 400x400 canvas
+// Ergo xmin, xmax, ymin, ymax are hardwired (but they needn't be.)
 let ym =Number(document.getElementById("segRange").value); //height to start sweepY
+let xmin = -ym;
+let xmax = ym;
+let ymin = -ym;
+let ymax = ym;
+// ============ END Scaling xy to the canvas  ==========
+
 let sweepY = ym;
 let displaySweepY = sweepY;
 let animate = false; //who knows. maybe someday
@@ -26,8 +36,8 @@ let sweepSpeed = Number(document.getElementById("sweepSpeed").value);
 //let sweepSpeed = 1;       // coordinate units per frame
 let animationTarget = null;
 let pauseUntil = 0;
-let minY = Infinity; //used to compute progress bar
-let maxY = -Infinity; //used to compute progress bar
+let minY = Infinity; //used to compute progress bar. Value is for the data
+let maxY = -Infinity; //used to compute progress bar. Value is for the data
 let stdIntersections = new Map;
 let maxLen = Number(document.getElementById("maxLen").value);
 
@@ -94,9 +104,9 @@ function resetVariables(reuseSegments) { // <= indirectly fills the Map stdInter
     document.getElementById('Div2').innerHTML = "";
     if (!reuseSegments) {
         if (doRandom) {
-            console.log(`Begin Random Segment Generation`)
+
             createRandomSegments(segNumber, maxLen);
-            console.log(`End Random Segment Generation`)
+
             shared = sharedPoints(segments);
         } else {
             createSegmentsStatic(segmentsArray); //hand crafted testing segments
@@ -158,7 +168,7 @@ function repeatableSetUp(reuseSegments) {
 
     sweepTree = new BST();
 
-   // redraw();  //draw the newly initialized data
+    redraw();  //draw the newly initialized data
     //debugLog('sweepY = ', sweepY);
 } //END repeatableSetUp
 //=============================================================================
@@ -282,10 +292,13 @@ function draw() {
     noStroke();
     fill("#2a8418");
     for (let segment of segments) {
-        segment.draw();                  //method to draw the line segment
+        segment.draw();                  //draw the xyScaled intersections of sweepY with the segments
         if (segment.isActive(sweepY)) {
             let x = segment.xAt(sweepY); //x value at 
-            circle(x, sweepY, 4); //draw Magenta intersect of sweepline and segments 
+            //scale this x and this sweepY for drawing
+            let px = map(x,xmin,xmax,-width/2, width/2);
+            let swY = map(sweepY, ymin, ymax, -height/2, height/2);
+            circle(px, swY, 4); //draw Magenta intersect of sweepline and segments 
             sweepStatus.push(segment);
         }
     }
@@ -328,7 +341,9 @@ function draw() {
             circle(intersection.x, intersection.y, 5);
             intersectionCnt += 1;
         } else {
-            circle(intersection.x, intersection.y, 3);
+            let px = map(intersection.x,xmin,xmax,-width/2, width/2);
+            let py = map(intersection.y,ymin,ymax,-height/2, height/2);
+            circle(px,py, 3);
             intersectionCnt += 1;
         }
 
@@ -374,7 +389,8 @@ function drawSweepLine() {
     translate(width / 2, height / 2);
     scale(1, -1);
     stroke("green");
-    line(-width / 2, displaySweepY, width / 2, displaySweepY);
+    let scY = map(displaySweepY,ymin,ymax,-height/2, height/2);
+    line(-width / 2, scY, width / 2, scY);
 
     stroke("black");
     pop();

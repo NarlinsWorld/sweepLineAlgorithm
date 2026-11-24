@@ -6,8 +6,12 @@ class Point {
   }
 
   draw() {
-    circle(this.x, this.y, 8);
+    //circle(this.x, this.y, 8);
+    let px = map(this.x, xmin, xmax, -width / 2, width / 2);
+    let py = map(this.y, ymin, ymax, -height / 2, height / 2);
+    circle(px, py, 8);
   }
+
 
   // ------------------------------------------------------------
   // Write the point's ID beside the point.

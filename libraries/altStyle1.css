@@ -1,4 +1,6 @@
 html {
+  margin: 0;
+  padding: 20px;
   height: 100%;
 }
 
@@ -134,10 +136,9 @@ input.ch-width1 {
   grid-row: 1;
   background-color: rgb(237, 237, 239);
   width: 400px;
-  height: 400px;
-  /* p5.js canvas size */
-  border: 3px solid green;
-  box-sizing: border-box;
+  height: 400px;  /* p5.js canvas size */
+  border: 1px solid green;
+  /*box-sizing: border-box; */
 }
 
 #Div1 {

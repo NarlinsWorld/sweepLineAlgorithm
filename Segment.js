@@ -10,7 +10,12 @@ class Segment {
         push();
         stroke("black");
         strokeWeight(.75);
-        line(this.p1.x, this.p1.y, this.p2.x, this.p2.y);
+        //line(this.p1.x, this.p1.y, this.p2.x, this.p2.y);
+        let p1x = map(this.p1.x, xmin, xmax, -width / 2, width / 2);
+        let p1y = map(this.p1.y, ymin, ymax, -height / 2, height / 2);
+        let p2x = map(this.p2.x, xmin, xmax, -width / 2, width / 2);
+        let p2y = map(this.p2.y, ymin, ymax, -height / 2, height / 2);
+        line(p1x,p1y,p2x,p2y);
         pop();
     }
 
