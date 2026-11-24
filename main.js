@@ -104,8 +104,11 @@ function resetVariables(reuseSegments) { // <= indirectly fills the Map stdInter
     document.getElementById('Div2').innerHTML = "";
     if (!reuseSegments) {
         if (doRandom) {
-
+            const beginSegmentCreationTime = performance.now();
             createRandomSegments(segNumber, maxLen);
+            const endSegmentCreationTime = performance.now();
+            segCreationTime = endSegmentCreationTime - beginSegmentCreationTime
+            console.log(`Time to create & preProcess ${segNumber} segs = ${segCreationTime} ms`);
 
             shared = sharedPoints(segments);
         } else {
@@ -128,7 +131,7 @@ function repeatableSetUp(reuseSegments) {
     //estimated = countIntersections(); //it counts only.
     // time and average the performance
     let summ = 0;
-    let iter = 100;
+    let iter = 1;
 
     resetVariables(reuseSegments);  // <= do not time this data reset
     for (let i = 0; i < iter; i++) {
@@ -167,8 +170,10 @@ function repeatableSetUp(reuseSegments) {
     }
 
     sweepTree = new BST();
-
+    const startDrawing = performance.now();
     redraw();  //draw the newly initialized data
+    const endDrawing = performance.now();
+    console.log(`Draw Time in repeatableSetUp = ${endDrawing-startDrawing} ms`);
     //debugLog('sweepY = ', sweepY);
 } //END repeatableSetUp
 //=============================================================================
@@ -337,19 +342,22 @@ function draw() {
     noStroke();
     intersectionCnt = 0;
     for (const intersection of uniqueIntersections.values()) {
+        let px, py;
         if (segments.length <= 100) {
-            circle(intersection.x, intersection.y, 5);
+            px = map(intersection.x,xmin,xmax,-width/2, width/2);
+            py = map(intersection.y,ymin,ymax,-height/2, height/2);
+            circle(px,py, 5);
             intersectionCnt += 1;
         } else {
-            let px = map(intersection.x,xmin,xmax,-width/2, width/2);
-            let py = map(intersection.y,ymin,ymax,-height/2, height/2);
+            px = map(intersection.x,xmin,xmax,-width/2, width/2);
+            py = map(intersection.y,ymin,ymax,-height/2, height/2);
             circle(px,py, 3);
             intersectionCnt += 1;
         }
 
     }
     document.getElementById("intersectionCount").innerHTML = "Intersections Detected = " + intersectionCnt;
-
+  
 
 
 
@@ -1136,21 +1144,24 @@ async function runASAP() {
     initialEventCount = events.length;
  
     //keep running until consistency
-    for (let i = 0; i < 10; i++) {
-        groupInstanceTime = await runASAPChunk(33, keep = true);
+    for (let i = 0; i < 100; i++) {
+        groupInstanceTime = await runASAPChunk(1, keep = true); //1st arg is number of repeats
         avgTime.push(groupInstanceTime);
-        if (i >= 3 && areWithin3Percent(avgTime[i - 1], avgTime[i])) break;       
+        if (i >= 3 && areWithin1Percent(avgTime[i - 1], avgTime[i])) {
+            console.log(`repeats = ${i}`)
+            break;
+        }       
     }
     console.log(`last two times: ${avgTime[avgTime.length - 2]}, ${avgTime[avgTime.length - 1]}`);
     
     return (avgTime[avgTime.length - 1]);
 
-    function areWithin3Percent(a, b) {
+    function areWithin1Percent(a, b) {
         // Avoid division by zero
         if (a === 0 && b === 0) return true;
         // Calculate relative percentage difference
         const diff = Math.abs(a - b) / ((a + b) / 2);
-        return diff <= 0.03; // 3% threshold
+        return diff <= 0.01; // 1% threshold
     }
 }
 
@@ -1159,7 +1170,7 @@ async function runASAPChunk(repeats, keep) {
 
     for (let i = 0; i < repeats; i++) {
         resetVariables(true);
-        batchSize = 100000;
+        batchSize = 1000000;
         let count = 0;
         let nextEvent;
 
@@ -1220,4 +1231,3 @@ function updateProgress() {
     document.getElementById("progressText").textContent =
         `${completed.toFixed(0)} / ${total} possible (${percent.toFixed(1)}%)`;
 }
-

@@ -200,7 +200,7 @@ for (let i = 0; i < g.length; i++) {
     <p>When two segments share a single end point, then that end point is obviously an intersection of those segments.
       As such, it is made into an intersection event. So those events can be put into the event queue before we begin
       processing the queue. Discovering those shared end points must be done with attention to time complexity. We
-      can't just compare every segments points with every other segments points! So what we do is build and end point
+      can't just compare every segments points with every other segments points! So what we do is build an end point
       Map
       using javascript's (Map) feature. (Identical to Python's Dictionary). The Map key will be a string made from the
       segment's point.x and point.y. The Maps value will be the segment Id. Here is the function that does it. Note that
