@@ -11,7 +11,7 @@ let sweepTree; // initialize varaible for Binary Search Tree
 //  ========= Scaling xy to the canvas  =============
 // Segment Range is currently square and scaled to fit in a 400x400 canvas
 // Ergo xmin, xmax, ymin, ymax are hardwired (but they needn't be.)
-let ym =Number(document.getElementById("segRange").value); //height to start sweepY
+let ym = Number(document.getElementById("segRange").value); //height to start sweepY
 let xmin = -ym;
 let xmax = ym;
 let ymin = -ym;
@@ -125,7 +125,7 @@ function resetVariables(reuseSegments) { // <= indirectly fills the Map stdInter
 
 } //End resetVariables
 
-function repeatableSetUp(reuseSegments) { 
+function repeatableSetUp(reuseSegments) {
     //console.log(`repeabableSetUp reuseSegments is ${reuseSegments}`);
     //use the standard method to find intersections
     //estimated = countIntersections(); //it counts only.
@@ -173,7 +173,7 @@ function repeatableSetUp(reuseSegments) {
     const startDrawing = performance.now();
     redraw();  //draw the newly initialized data
     const endDrawing = performance.now();
-    console.log(`Draw Time in repeatableSetUp = ${endDrawing-startDrawing} ms`);
+    console.log(`Draw Time in repeatableSetUp = ${endDrawing - startDrawing} ms`);
     //debugLog('sweepY = ', sweepY);
 } //END repeatableSetUp
 //=============================================================================
@@ -301,8 +301,8 @@ function draw() {
         if (segment.isActive(sweepY)) {
             let x = segment.xAt(sweepY); //x value at 
             //scale this x and this sweepY for drawing
-            let px = map(x,xmin,xmax,-width/2, width/2);
-            let swY = map(sweepY, ymin, ymax, -height/2, height/2);
+            let px = map(x, xmin, xmax, -width / 2, width / 2);
+            let swY = map(sweepY, ymin, ymax, -height / 2, height / 2);
             circle(px, swY, 4); //draw Magenta intersect of sweepline and segments 
             sweepStatus.push(segment);
         }
@@ -344,20 +344,20 @@ function draw() {
     for (const intersection of uniqueIntersections.values()) {
         let px, py;
         if (segments.length <= 100) {
-            px = map(intersection.x,xmin,xmax,-width/2, width/2);
-            py = map(intersection.y,ymin,ymax,-height/2, height/2);
-            circle(px,py, 5);
+            px = map(intersection.x, xmin, xmax, -width / 2, width / 2);
+            py = map(intersection.y, ymin, ymax, -height / 2, height / 2);
+            circle(px, py, 5);
             intersectionCnt += 1;
         } else {
-            px = map(intersection.x,xmin,xmax,-width/2, width/2);
-            py = map(intersection.y,ymin,ymax,-height/2, height/2);
-            circle(px,py, 3);
+            px = map(intersection.x, xmin, xmax, -width / 2, width / 2);
+            py = map(intersection.y, ymin, ymax, -height / 2, height / 2);
+            circle(px, py, 3);
             intersectionCnt += 1;
         }
 
     }
     document.getElementById("intersectionCount").innerHTML = "Intersections Detected = " + intersectionCnt;
-  
+
 
 
 
@@ -397,7 +397,7 @@ function drawSweepLine() {
     translate(width / 2, height / 2);
     scale(1, -1);
     stroke("green");
-    let scY = map(displaySweepY,ymin,ymax,-height/2, height/2);
+    let scY = map(displaySweepY, ymin, ymax, -height / 2, height / 2);
     line(-width / 2, scY, width / 2, scY);
 
     stroke("black");
@@ -484,7 +484,7 @@ function createRandomSegments(n, maxLen = 400) {
     const H = maxLen / 2;
 
     for (let i = 0; i < n; i++) {
-       
+
         const x1 = randomIntFromInterval(-ym, ym); //ym is a ymax global and is the beginning of sweepY too.
         const y1 = randomIntFromInterval(-ym, ym);
 
@@ -1142,7 +1142,7 @@ async function runASAP() {
     let avgTime = [];
     processedEvents.clear();
     initialEventCount = events.length;
- 
+
     //keep running until consistency
     for (let i = 0; i < 100; i++) {
         groupInstanceTime = await runASAPChunk(1, keep = true); //1st arg is number of repeats
@@ -1150,10 +1150,10 @@ async function runASAP() {
         if (i >= 3 && areWithin1Percent(avgTime[i - 1], avgTime[i])) {
             console.log(`repeats = ${i}`)
             break;
-        }       
+        }
     }
     console.log(`last two times: ${avgTime[avgTime.length - 2]}, ${avgTime[avgTime.length - 1]}`);
-    
+
     return (avgTime[avgTime.length - 1]);
 
     function areWithin1Percent(a, b) {
@@ -1170,7 +1170,7 @@ async function runASAPChunk(repeats, keep) {
 
     for (let i = 0; i < repeats; i++) {
         resetVariables(true);
-        batchSize = 1000000;
+        batchSize = 100000;
         let count = 0;
         let nextEvent;
 
@@ -1192,19 +1192,14 @@ async function runASAPChunk(repeats, keep) {
         }
         sum += performance.now() - beginTime;
 
-        // Yield to the UI between chunks so the browser can paint / stay responsive
+        // Yield to the UI between repeats
         await new Promise(r => setTimeout(r, 0));
     }
 
     updateProgress();
 
-    // Keep draining in further chunk groups until everything is processed
-    if (events.some(e => !processedEvents.has(e))) {
-        sum += await runASAPChunk(repeats, keep); // recurse and await
-    } else {
-        document.getElementById('intersectionList').click();
-        redraw();
-    }
+    document.getElementById('intersectionList').click();
+    redraw();
 
     return sum / repeats;
 }

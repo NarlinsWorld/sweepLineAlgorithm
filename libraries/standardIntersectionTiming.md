@@ -13,4 +13,4 @@ Here is some data.
 |30000|3881|
 
 
-The clock time to create and pre-process the segments has also been measured and it is negligible. To preProcess 30,000 random segments takes only about 55 ms and the clock time is seemingly intantanous.
+The clock time to create and pre-process the segments has also been measured and it is negligible. To preProcess 30,000 random segments takes only about 55 ms and the clock time is seemingly instantanous.
