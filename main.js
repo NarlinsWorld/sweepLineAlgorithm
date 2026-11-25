@@ -930,6 +930,7 @@ function processEvent(event, refresh = true) {
 
     function addIntersectionEvents(newIntersections, currentEvent) {
         let eventAdded = false;
+        let newEvents = [];
         for (let item of newIntersections) {
 
             let key = pairKey(item.segment1, item.segment2);
@@ -943,7 +944,12 @@ function processEvent(event, refresh = true) {
 
             intersections.push(item);
 
-            let existingEvent = events.find(e =>
+            // let existingEvent = events.find(e =>
+            //     e.type === "intersection" && sameIntersection(item, e)
+            // );
+            let currentIndex = events.indexOf(currentEvent);
+
+            let existingEvent = events.slice(currentIndex).find(e =>
                 e.type === "intersection" && sameIntersection(item, e)
             );
 
@@ -974,22 +980,53 @@ function processEvent(event, refresh = true) {
 
             } else {
 
-                events.push(
-                    new SweepEvent(
-                        item.y,
-                        "intersection",
-                        [item.segment1, item.segment2],
-                        item.x
-                    )
+                // events.push(
+                //     new SweepEvent(
+                //         item.y,
+                //         "intersection",
+                //         [item.segment1, item.segment2],
+                //         item.x
+                //     )
+                // );
+                // eventAdded = true;
+                // debugLog(
+                //     `Intersection event added: S${item.segment1.id}, S${item.segment2.id} (${item.x}, ${item.y})`
+                // );
+
+                //debug line temporary test
+                let newEvent = new SweepEvent(
+                    item.y,
+                    "intersection",
+                    [item.segment1, item.segment2],
+                    item.x
                 );
+
+                events.push(newEvent);
+                newEvents.push(newEvent); //added for the diagnostic
                 eventAdded = true;
-                debugLog(
-                    `Intersection event added: S${item.segment1.id}, S${item.segment2.id} (${item.x}, ${item.y})`
-                );
+                //end debug line temporary test
             }
         }
-        if (eventAdded) sortEvents();
-    }
+
+        if (eventAdded) {
+            sortEvents();
+
+            let currentIndex = events.indexOf(currentEvent);
+
+            for (let newEvent of newEvents) {
+                let newIndex = events.indexOf(newEvent);
+
+                if (newIndex < currentIndex) {
+                    console.warn("New event sorted BEFORE current event!", {
+                        current: [currentEvent.x, currentEvent.y],
+                        added: [newEvent.x, newEvent.y],
+                        currentIndex,
+                        newIndex
+                    });
+                }
+            }
+        }
+    } //END function addIntersectionEvents()
 
     // code before debug on 14 Nov AM
     function createNewIntersection(candidates, iamy) {

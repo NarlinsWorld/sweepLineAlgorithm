@@ -134,25 +134,51 @@ function recordUniqueIntersection(x, y, segments) {
 
 
 function sortEvents() {
-  const eventPriority = {
-    delete: 0,
-    intersection: 1,
-    horizontal: 2,
-    insert: 3
-  };
-
-  //   const eventPriority = {
-  //     insert: 0,
-  //     intersection: 1,
-  //     horizontal: 2,
-  //     delete: 3
+  events.sort(compareEvents);
+  // const eventPriority = {
+  //   delete: 0,
+  //   intersection: 1,
+  //   insert: 2,
+  //   horizontal: 3
   // };
 
-  events.sort((a, b) =>
-    (b.y - a.y) ||
-    (a.x - b.x) ||
-    (eventPriority[a.type] - eventPriority[b.type])
-  );
+
+
+  // events.sort((a, b) =>
+  //   (b.y - a.y) ||
+  //   (a.x - b.x) ||
+  //   (eventPriority[a.type] - eventPriority[b.type])
+  // );
+}
+
+function compareEvents(a, b) {
+    const eventPriority = {
+        delete: 0,
+        intersection: 1,
+        insert: 2,
+        horizontal: 3
+    };
+
+    return (b.y - a.y) ||
+           (a.x - b.x) ||
+           (eventPriority[a.type] - eventPriority[b.type]);
+}
+
+function insertEvent(newEvent) {
+    let low = 0;
+    let high = events.length;
+
+    while (low < high) {
+        let mid = Math.floor((low + high) / 2);
+
+        if (compareEvents(events[mid], newEvent) <= 0) {
+            low = mid + 1;
+        } else {
+            high = mid;
+        }
+    }
+
+    events.splice(low, 0, newEvent);
 }
 
 //segment Range button handler
