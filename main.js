@@ -930,7 +930,7 @@ function processEvent(event, refresh = true) {
 
 
     function addIntersectionEvents(newIntersections, currentEvent) {
-        let eventAdded = false;
+        let eventAdded = false;                 //should be able to remove this. It isn't used
         for (let item of newIntersections) {
 
             let key = pairKey(item.segment1, item.segment2);
@@ -977,8 +977,10 @@ function processEvent(event, refresh = true) {
                     item.x
                 );
 
-                events.push(newEvent);
-                eventAdded = true;
+                // events.push(newEvent);
+                // eventAdded = true;
+                insertEvent(newEvent);
+                eventAdded = true;           //should be able to remove this. It isn't used.
 
                 debugLog(
                     `Intersection event added: S${item.segment1.id}, S${item.segment2.id} (${item.x}, ${item.y})`
@@ -986,10 +988,10 @@ function processEvent(event, refresh = true) {
             }
 
         }
-        if (eventAdded) {
-            sortEvents();
-        }
-    }
+        // if (eventAdded) {
+        //     sortEvents();
+        // }
+    } // END addIntersectionEvents
 
 
 
@@ -1094,6 +1096,59 @@ function listSegs(segments) {
         ;
         appendHTML("Div1", str);
     }
+}
+
+
+function testInsertEvent() {
+
+    // Save the real event array
+    let savedEvents = events;
+
+    // Create a small test array
+    events = [
+        new SweepEvent(100, "insert", [], 20),
+        new SweepEvent(80, "delete", [], 10),
+        new SweepEvent(60, "intersection", [], 30),
+        new SweepEvent(40, "horizontal", [], 15)
+    ];
+
+    // Sort the initial events
+    sortEvents();
+
+    // Make a copy for the reference test
+    let reference = [...events];
+
+    // Create some additional events
+    let additions = [
+        new SweepEvent(90, "intersection", [], 25),
+        new SweepEvent(60, "delete", [], 10),
+        new SweepEvent(50, "insert", [], 20),
+        new SweepEvent(100, "horizontal", [], 20)
+    ];
+
+    // Insert using your new function
+    for (let event of additions) {
+        insertEvent(event);
+    }
+
+    // Sort the reference array using the original sorting method
+    reference.push(...additions);
+    reference.sort(compareEvents);
+
+    // Compare the results
+    let match = events.every((event, i) =>
+        event === reference[i]
+    );
+
+    console.log("Insertion test:", match ? "PASSED" : "FAILED");
+
+    if (!match) {
+        console.log("Insertion result:", events);
+        console.log("Reference result:", reference);
+    }
+
+    // Restore the real event array
+    events = savedEvents;
 }
 
 
