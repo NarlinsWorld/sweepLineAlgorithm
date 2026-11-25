@@ -928,15 +928,14 @@ function processEvent(event, refresh = true) {
     }
 
 
+
     function addIntersectionEvents(newIntersections, currentEvent) {
         let eventAdded = false;
-        let newEvents = [];
         for (let item of newIntersections) {
 
             let key = pairKey(item.segment1, item.segment2);
 
             if (scheduledIntersections.has(key)) {
-
                 continue;
             }
 
@@ -944,9 +943,6 @@ function processEvent(event, refresh = true) {
 
             intersections.push(item);
 
-            // let existingEvent = events.find(e =>
-            //     e.type === "intersection" && sameIntersection(item, e)
-            // );
             let currentIndex = events.indexOf(currentEvent);
 
             let existingEvent = events.slice(currentIndex).find(e =>
@@ -954,20 +950,14 @@ function processEvent(event, refresh = true) {
             );
 
             if (existingEvent) {
+
                 // Add each participating segment only once.
-                // console.log(
-                //     "MERGE EVENT:",
-                //     item.x, item.y,
-                //     "Already processed:",
-                //     processedEvents.has(existingEvent),
-                //     "Existing segments:",
-                //     existingEvent.segments.map(s => s.id)
-                // );
                 for (let segment of [item.segment1, item.segment2]) {
                     if (!existingEvent.segments.some(s => s.id === segment.id)) {
                         existingEvent.segments.push(segment);
                     }
                 }
+
                 debugLog(
                     `Merged intersection at (${item.x}, ${item.y}); ` +
                     `segments: ${existingEvent.segments.map(s => `S${s.id}`).join(", ")}`
@@ -980,20 +970,6 @@ function processEvent(event, refresh = true) {
 
             } else {
 
-                // events.push(
-                //     new SweepEvent(
-                //         item.y,
-                //         "intersection",
-                //         [item.segment1, item.segment2],
-                //         item.x
-                //     )
-                // );
-                // eventAdded = true;
-                // debugLog(
-                //     `Intersection event added: S${item.segment1.id}, S${item.segment2.id} (${item.x}, ${item.y})`
-                // );
-
-                //debug line temporary test
                 let newEvent = new SweepEvent(
                     item.y,
                     "intersection",
@@ -1002,31 +978,20 @@ function processEvent(event, refresh = true) {
                 );
 
                 events.push(newEvent);
-                newEvents.push(newEvent); //added for the diagnostic
                 eventAdded = true;
-                //end debug line temporary test
-            }
-        }
 
+                debugLog(
+                    `Intersection event added: S${item.segment1.id}, S${item.segment2.id} (${item.x}, ${item.y})`
+                );
+            }
+
+        }
         if (eventAdded) {
             sortEvents();
-
-            let currentIndex = events.indexOf(currentEvent);
-
-            for (let newEvent of newEvents) {
-                let newIndex = events.indexOf(newEvent);
-
-                if (newIndex < currentIndex) {
-                    console.warn("New event sorted BEFORE current event!", {
-                        current: [currentEvent.x, currentEvent.y],
-                        added: [newEvent.x, newEvent.y],
-                        currentIndex,
-                        newIndex
-                    });
-                }
-            }
         }
-    } //END function addIntersectionEvents()
+    }
+
+
 
     // code before debug on 14 Nov AM
     function createNewIntersection(candidates, iamy) {
@@ -1182,7 +1147,7 @@ async function runASAP() {
 
     //keep running until consistency
     for (let i = 0; i < 100; i++) {
-        groupInstanceTime = await runASAPChunk(1, keep = true); //1st arg is number of repeats
+        groupInstanceTime = await runASAPChunk(3, keep = true); //1st arg is number of repeats
         avgTime.push(groupInstanceTime);
         if (i >= 3 && areWithin1Percent(avgTime[i - 1], avgTime[i])) {
             console.log(`repeats = ${i}`)
@@ -1207,7 +1172,7 @@ async function runASAPChunk(repeats, keep) {
 
     for (let i = 0; i < repeats; i++) {
         resetVariables(true);
-        batchSize = 100000;
+        batchSize = 1000000;
         let count = 0;
         let nextEvent;
 

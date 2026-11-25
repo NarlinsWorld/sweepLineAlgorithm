@@ -164,6 +164,7 @@ function compareEvents(a, b) {
            (eventPriority[a.type] - eventPriority[b.type]);
 }
 
+//this should probably go in main.js just below addIntersectionEvent
 function insertEvent(newEvent) {
     let low = 0;
     let high = events.length;
